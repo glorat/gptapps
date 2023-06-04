@@ -12,10 +12,10 @@
         />
 
         <q-toolbar-title>
-          Quasar App
+          GPT Apps
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div><q-input label="Open AI Key" type="password" filled v-model="openaikey" @update:model-value="onKeyChange"></q-input></div>
       </q-toolbar>
     </q-header>
 
@@ -34,10 +34,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import {onMounted, ref} from 'vue'
 import MyAside from 'layouts/MyAside.vue'
+import {Config} from 'src/lib/ai/config'
 
 const leftDrawerOpen = ref(false)
+
+const openaikey = ref('')
+onMounted(() => {
+  const key = localStorage?.getItem('openaikey')
+  if (key) {
+    openaikey.value = key
+    Config.openAiApiKey = key
+  }
+})
+function onKeyChange() {
+  localStorage?.setItem('openaikey', openaikey.value)
+  Config.openAiApiKey = openaikey.value
+}
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value

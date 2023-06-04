@@ -4,6 +4,7 @@ import {matHome, matPerson} from '@quasar/extras/material-icons'
 const children: RouteRecordRaw[] = [
   { path: '/', component: () => import('pages/IndexPage.vue'), meta: {title:'Home', icon:matHome}  },
   { path: '/login', name: 'login', component: () => import('pages/LoginPage.vue'), meta: {title:'Login', icon:matPerson}  },
+  { path: '/qdoc', name: 'docq', component: () => import('pages/DocumentQuery.vue'), meta: {title:'Document Query', icon:matPerson}  },
 
 
 ]
