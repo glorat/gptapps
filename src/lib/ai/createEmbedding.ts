@@ -1,5 +1,5 @@
-import {CreateEmbeddingRequest} from "openai";
-import {Config, getOpenAIAPI} from "./config";
+import {CreateEmbeddingRequest} from 'openai';
+import {Config, getOpenAIAPI} from './config';
 import {logger} from './logger'
 
 export async function createEmbedding(input: string): Promise<number[]> {

@@ -12,7 +12,7 @@ export const Config = {
 export const getOpenAIAPI = () => {
   if (!Config.openAiApiKey) throw new Error('OPENAPI_KEY env not setup. Please check .env file or environment variables')
 
-  new OpenAIApi(new Configuration({
+  return new OpenAIApi(new Configuration({
     apiKey: Config.openAiApiKey,
   }));
 }
