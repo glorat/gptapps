@@ -14,15 +14,18 @@ export interface QnaStorage {
 }
 
 
-export async function createQnaStorageFromLargeContent(content: string): Promise<QnaStorage> {
+export async function createQnaStorageFromLargeContent(content: string, progress?: (p:number)=>void): Promise<QnaStorage> {
   const chunks = chunkDocument(content)
   const embeds: any[] = [];
 
   // Ensure we request the embedding sequentially
-  for (const chunk of chunks) {
+  for (let idx = 0; idx < chunks.length; idx++) {
+    const chunk = chunks[idx];
+    if (progress) progress(idx / chunks.length)
     const result = await createEmbedding(chunk);
     embeds.push(result);
   }
+  if (progress) progress(0)
 
   const keys = range(chunks.length).map(x => x.toString()) as string[]
   const tokens:number[] = chunks.map(chunk => encode(chunk).length)
