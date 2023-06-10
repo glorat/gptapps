@@ -10,6 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: yarn install --frozen-lockfile && yarn run build
+      - name: Test
+        run: npm run test
+        env:
+          OPENAPI_KEY: ${{ secrets.OPENAPI_KEY }}
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
