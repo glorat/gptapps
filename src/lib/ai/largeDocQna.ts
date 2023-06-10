@@ -1,8 +1,8 @@
 import {chunkDocument} from './chunkDocument'
-import {createEmbedding} from './createEmbedding'
 import {range} from 'lodash'
 import {encode} from 'gpt-tokenizer'
 import {performQna} from 'src/lib/ai/answer'
+import {createEmbedding} from 'src/lib/ai/openaiFacade'
 
 export interface EmbedsData { lengths: number[]; keys: string[]; tokens: number[]; embeds: number[][] }
 
@@ -22,7 +22,7 @@ export async function createQnaStorageFromLargeContent(content: string, progress
   for (let idx = 0; idx < chunks.length; idx++) {
     const chunk = chunks[idx];
     if (progress) progress(idx / chunks.length)
-    const result = await createEmbedding(chunk);
+    const result = await createEmbedding({input:chunk});
     embeds.push(result);
   }
   if (progress) progress(0)
