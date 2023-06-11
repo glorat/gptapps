@@ -7,9 +7,44 @@ import {CreateEmbeddingRequest} from 'openai'
 import {Config, getOpenAIAPI} from 'src/lib/ai/config'
 import {logger} from 'src/lib/ai/logger'
 import {callWithRetry} from 'src/lib/ai/callWithRetry'
+import {LRUCache} from 'lru-cache'
+import SHA256 from 'crypto-js/sha256';
 
-export async function createEmbeddingDirect(args: {input:string}): Promise<number[]> {
+export const embedsCache = new LRUCache<string, number[]>({max: 100})
+
+type KeySerializer = (arg: any) => string;
+
+const defaultKeySerializer: KeySerializer = (args: any[]) => JSON.stringify(args);
+
+function memoizeFunction<T extends NonNullable<unknown>>(
+  fn: (...args: any[]) => Promise<T>,
+  cache: LRUCache<string, T>,
+  keySerializer: KeySerializer = defaultKeySerializer
+): (...args: any[]) => Promise<T> {
+  return async (...args: any[]): Promise<T> => {
+    const cacheKey = keySerializer(args);
+
+    if (cache.has(cacheKey)) {
+      return cache.get(cacheKey)!;
+    }
+
+    const result = await fn(...args);
+    cache.set(cacheKey, result);
+
+    return result;
+  };
+}
+export const createEmbeddingDirect = memoizeFunction(createEmbeddingDirectNoMemo, embedsCache);
+
+async function createEmbeddingDirectNoMemo(args: {input:string}): Promise<number[]> {
+
   const {input} = args
+  const hash = SHA256(input).toString()
+  const cached =  embedsCache.get(hash)
+  if (cached) {
+    return cached
+  }
+
   const req: CreateEmbeddingRequest = {
     input,
     model: Config.embedModel,
@@ -19,7 +54,9 @@ export async function createEmbeddingDirect(args: {input:string}): Promise<numbe
   logger.debug(`createEmbedding for ${input.length} bytes`)
   const res = await getOpenAIAPI().createEmbedding(req)
   logger.info(`createEmbedding return result for ${input.length}`)
-  return res.data.data[0].embedding
+  const final = res.data.data[0].embedding
+  embedsCache.set(hash, final)
+  return final
 }
 
 
