@@ -52,7 +52,7 @@ async function createEmbeddingDirectNoMemo(args: {input:string}): Promise<number
 
   }
   logger.debug(`createEmbedding for ${input.length} bytes`)
-  const res = await getOpenAIAPI().createEmbedding(req)
+  const res = await callWithRetry(() => getOpenAIAPI().createEmbedding(req))
   logger.info(`createEmbedding return result for ${input.length}`)
   const final = res.data.data[0].embedding
   embedsCache.set(hash, final)
