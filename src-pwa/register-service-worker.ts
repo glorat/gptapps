@@ -1,4 +1,9 @@
 import { register } from 'register-service-worker';
+import {Notify} from 'quasar'
+import {mdiCached} from '@quasar/extras/mdi-v7';
+
+
+const forceNotify = false;
 
 // The ready(), registered(), cached(), updatefound() and updated()
 // events passes a ServiceWorkerRegistration instance in their arguments.
@@ -12,30 +17,62 @@ register(process.env.SERVICE_WORKER_FILE, {
   // registrationOptions: { scope: './' },
 
   ready (/* registration */) {
-    // console.log('Service worker is active.')
+    if (forceNotify || process.env.DEV) {
+      Notify.create('App is being served from cache by a service worker.')
+    }
   },
 
   registered (/* registration */) {
-    // console.log('Service worker has been registered.')
+    if (forceNotify || process.env.DEV) {
+      Notify.create('Service worker has been registered.')
+    }
   },
 
   cached (/* registration */) {
-    // console.log('Content has been cached for offline use.')
+    if (forceNotify || process.env.DEV) {
+      Notify.create('Content has been cached for offline use.')
+    }
   },
 
   updatefound (/* registration */) {
-    // console.log('New content is downloading.')
+    if (forceNotify || process.env.DEV) {
+      Notify.create('An update to this app is downloading.')
+    }
+    console.log('An update to this app is downloading')
   },
 
   updated (/* registration */) {
     // console.log('New content is available; please refresh.')
+    Notify.create({
+      color: 'negative',
+      icon: mdiCached,
+      message: 'App has been updated. Please refresh the page.',
+      timeout: 0,
+      multiLine: true,
+      position: 'top',
+      actions: [
+        {
+          label: 'Refresh',
+          color: 'yellow',
+          handler: () => {
+            window.location.reload()
+          }
+        },
+        {
+          label: 'Dismiss',
+          color: 'white',
+          handler: () => {
+          }
+        }
+      ]
+    })
   },
 
   offline () {
-    // console.log('No internet connection found. App is running in offline mode.')
+    Notify.create('No internet connection found. App is running in offline mode.')
   },
 
-  error (/* err */) {
-    // console.error('Error during service worker registration:', err)
+  error ( err ) {
+    Notify.create('Error during service worker registration:' + err)
   },
 });
