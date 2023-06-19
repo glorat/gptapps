@@ -1,54 +1,62 @@
 <template>
   <q-page>
-    <q-input
-      v-model="text"
-      filled
-      type="textarea"
-      :disable="loading"
-    />
-    <q-separator></q-separator>
-    <div>
-      <q-input
-        v-for="(question, index) in questions"
-        :key="index"
-        v-model="questions[index]"
-        outlined
-        dense
-        clearable
-        @clear="removeQuestion(index)"
-        @keydown.enter="addQuestion"
-        ref="questionInputs"
-        :disable="loading"
-      />
-      <q-btn label="Add Question" @click="addQuestion" :disable="loading"/>
-      <q-btn label="Answer me" @click="doit" :disable="loading"></q-btn>
-    </div>
-    <q-linear-progress v-if="embedProgress" :value="embedProgress"></q-linear-progress>
-    <div>
-      <q-input
-        v-for="(question, index) in answers"
-        :key="index"
-        type="textarea"
-        v-model="answers[index]"
-        :loading="answerLoading[index]"
-        outlined
-        dense
-        readonly
-      />
+    <div class="row">
+      <div class="col-sm-6 col-xs-12 full-height">
+        <q-input
+          v-model="text"
+          filled
+          type="textarea"
+          :disable="loading"
+          autogrow
+          label="Content to query - paste here"
+        />
+      </div>
+      <div class="col">
+        <div>
+          <q-input
+            v-for="(question, index) in questions"
+            :key="index"
+            v-model="questions[index]"
+            outlined
+            dense
+            clearable
+            @clear="removeQuestion(index)"
+            @keydown.enter="addQuestion"
+            ref="questionInputs"
+            :disable="loading"
+          />
+          <q-btn label="Add Question" @click="addQuestion" :disable="loading"/>
+          <q-btn label="Answer me" @click="doit" :disable="loading"></q-btn>
+        </div>
+        <q-linear-progress v-if="embedProgress" :value="embedProgress"></q-linear-progress>
+        <div>
+          <q-input
+            v-for="(question, index) in answers"
+            :key="index"
+            type="textarea"
+            v-model="answers[index]"
+            :loading="answerLoading[index]"
+            outlined
+            dense
+            readonly
+          />
+        </div>
+      </div>
     </div>
   </q-page>
 </template>
+
 
 <script setup lang="ts">
 import {ref, watch, nextTick, onMounted} from 'vue'
 import {performQna} from 'src/lib/ai/answer'
 import {createQnaStorageFromLargeContent} from 'src/lib/ai/largeDocQna'
-import {Notify} from 'quasar';
+import {Notify} from 'quasar'
 
 
 const text = ref('')
 const questions = ref([] as string[])
-const questionInputs = ref([] as HTMLInputElement[]);
+const questionInputs = ref([] as HTMLInputElement[])
 
 const answers = ref([] as string[])
 const answerLoading = ref([] as boolean[])
@@ -60,13 +68,13 @@ function addQuestion() {
   questions.value.push('')
 
   nextTick(() => {
-    const lastIndex = questions.value.length - 1;
-    const newInput = questionInputs.value[lastIndex];
+    const lastIndex = questions.value.length - 1
+    const newInput = questionInputs.value[lastIndex]
 
     if (newInput) {
-      newInput.focus();
+      newInput.focus()
     }
-  });
+  })
 }
 
 function removeQuestion(index: number) {
@@ -82,7 +90,6 @@ onMounted(() => {
 })
 
 
-
 async function doit() {
   try {
     loading.value = true
@@ -90,10 +97,10 @@ async function doit() {
       localStorage.setItem('questions', JSON.stringify(questions.value))
     }
 
-    answers.value =  Array(questions.value.length).fill('')
-    answerLoading.value =  Array(questions.value.length).fill(true)
+    answers.value = Array(questions.value.length).fill('')
+    answerLoading.value = Array(questions.value.length).fill(true)
 
-    const storage = await createQnaStorageFromLargeContent(text.value, (p) => embedProgress.value=p)
+    const storage = await createQnaStorageFromLargeContent(text.value, (p) => embedProgress.value = p)
     let idx = 0
     for (const question of questions.value) {
       console.log(`QUESTION ${idx}: ${question}`)
@@ -105,7 +112,7 @@ async function doit() {
       idx++
     }
   } catch (e) {
-    Notify.create({ message: e?.toString() ?? 'Unknown error'})
+    Notify.create({message: e?.toString() ?? 'Unknown error'})
   } finally {
     loading.value = false
   }
