@@ -52,7 +52,7 @@ async function createEmbeddingDirectNoMemo(args: {input:string}): Promise<number
 
   }
   logger.debug(`createEmbedding for ${input.length} bytes`)
-  const res = await callWithRetry(() => getOpenAIAPI().createEmbedding(req))
+  const res = await callWithRetry(() => getOpenAIAPI(Config.embedModel).createEmbedding(req))
   logger.info(`createEmbedding return result for ${input.length}`)
   const final = res.data.data[0].embedding
   embedsCache.set(hash, final)
@@ -79,9 +79,9 @@ export async function answerMeDirect(arg: {context: string, userPrompt: string, 
 
   logger.debug(prompt)
 
-  const response = await callWithRetry(() => getOpenAIAPI().createChatCompletion({
+  const response = await callWithRetry(() => getOpenAIAPI(Config.chatModel).createChatCompletion({
     ...completionConfig,
-    model: 'gpt-3.5-turbo',
+    model: Config.chatModel,
     messages:[
       {role: 'system', content: context},
       {role: 'user', content: initPrompt},
