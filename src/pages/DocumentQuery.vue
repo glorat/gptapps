@@ -27,11 +27,12 @@
           />
           <q-btn label="Add Question" @click="addQuestion" :disable="loading"/>
           <q-btn label="Answer me" @click="doit" :disable="loading"></q-btn>
+          <q-btn label="Download CSV" @click="generateCSV" :disable="loading || questions.length === 0 || questions.length !== answers.length "></q-btn>
         </div>
         <q-linear-progress v-if="embedProgress" :value="embedProgress"></q-linear-progress>
         <div>
           <q-input
-            v-for="(question, index) in answers"
+            v-for="(answer, index) in answers"
             :key="index"
             type="textarea"
             v-model="answers[index]"
@@ -46,13 +47,11 @@
   </q-page>
 </template>
 
-
 <script setup lang="ts">
-import {ref, watch, nextTick, onMounted} from 'vue'
-import {performQna} from 'src/lib/ai/answer'
-import {createQnaStorageFromLargeContent} from 'src/lib/ai/largeDocQna'
-import {Notify} from 'quasar'
-
+import { ref, watch, nextTick, onMounted } from 'vue'
+import { performQna } from 'src/lib/ai/answer'
+import { createQnaStorageFromLargeContent } from 'src/lib/ai/largeDocQna'
+import {exportFile, Notify} from 'quasar'
 
 const text = ref('')
 const questions = ref([] as string[])
@@ -89,7 +88,6 @@ onMounted(() => {
   }
 })
 
-
 async function doit() {
   try {
     loading.value = true
@@ -100,7 +98,7 @@ async function doit() {
     answers.value = Array(questions.value.length).fill('')
     answerLoading.value = Array(questions.value.length).fill(true)
 
-    const storage = await createQnaStorageFromLargeContent(text.value, (p) => embedProgress.value = p)
+    const storage = await createQnaStorageFromLargeContent(text.value, (p) => (embedProgress.value = p))
     let idx = 0
     for (const question of questions.value) {
       console.log(`QUESTION ${idx}: ${question}`)
@@ -112,11 +110,26 @@ async function doit() {
       idx++
     }
   } catch (e) {
-    Notify.create({message: e?.toString() ?? 'Unknown error'})
+    Notify.create({ message: e?.toString() ?? 'Unknown error' })
   } finally {
     loading.value = false
   }
-
 }
 
+function generateCSV() {
+  const csvRows = [
+    ['id', 'question', 'answer'], // header row
+  ]
+
+  questions.value.forEach((question, index) => {
+    const id = index + 1 // generate a unique id for each question
+    const answer = answers.value[index]
+    csvRows.push([id, question, answer])
+  })
+
+  const csvContent = csvRows.map(row => row.join(',')).join('\n')
+
+  // Download the CSV file using Quasar's exportFile method
+  exportFile('questions_answers.csv', csvContent, 'text/csv')
+}
 </script>
