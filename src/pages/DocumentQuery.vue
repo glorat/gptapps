@@ -116,6 +116,18 @@ async function doit() {
   }
 }
 
+function escapeCSVValue(value: string): string {
+  // Escape double quotes by doubling them
+  const escapedValue = value.replace(/"/g, '""')
+
+  // Enclose the value in double quotes if it contains a comma or a double quote
+  if (value.includes(',') || value.includes('"')) {
+    return `"${escapedValue}"`
+  }
+
+  return escapedValue
+}
+
 function generateCSV() {
   const csvRows = [
     ['id', 'question', 'answer'], // header row
@@ -124,7 +136,9 @@ function generateCSV() {
   questions.value.forEach((question, index) => {
     const id = index + 1 // generate a unique id for each question
     const answer = answers.value[index]
-    csvRows.push([id, question, answer])
+    const escapedQuestion = escapeCSVValue(question)
+    const escapedAnswer = escapeCSVValue(answer)
+    csvRows.push([id, escapedQuestion, escapedAnswer])
   })
 
   const csvContent = csvRows.map(row => row.join(',')).join('\n')
