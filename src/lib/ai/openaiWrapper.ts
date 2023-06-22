@@ -10,7 +10,7 @@ import {callWithRetry} from 'src/lib/ai/callWithRetry'
 import {LRUCache} from 'lru-cache'
 import SHA256 from 'crypto-js/sha256';
 
-export const embedsCache = new LRUCache<string, number[]>({max: 100})
+export const embedsCache = new LRUCache<string, number[]>({max: 500})
 
 type KeySerializer = (arg: any) => string;
 
