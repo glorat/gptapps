@@ -9,8 +9,15 @@ export const Config = {
   chatModel: 'gpt-3.5-turbo'
 }
 
+class CustomFormData extends FormData {
+  getHeaders() {
+    return {}
+  }
+}
+
 export const OpenAIParams: ConfigurationParameters = {
   apiKey: process.env.OPENAPI_KEY ?? '',
+  formDataCtor: CustomFormData
 }
 
 export const getOpenAIAPI = (deployment?: string) => {

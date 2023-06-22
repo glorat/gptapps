@@ -26,7 +26,7 @@ import routes from 'src/router/routes';
 import { version } from '../../package.json'
 
 const navBar = [
-  ['', 'login', 'qdoc']
+  ['', 'login', 'qdoc', 'audio']
 ];
 
 const menuItemsList = navBar.map(ss => {
