@@ -26,6 +26,7 @@
     "firebase": "^9.20.0",
     "firebase-tools": "^11.28.0",
     "firebaseui": "^6.0.2",
+    "franc": "^6.1.0",
     "gpt-tokenizer": "^2.1.1",
     "lodash": "^4.17.21",
     "lru-cache": "^9.1.2",
