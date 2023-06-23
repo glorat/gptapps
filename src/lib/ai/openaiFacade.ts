@@ -1,7 +1,7 @@
 import {logger} from 'src/lib/ai/logger'
 import {getFunctions, httpsCallable} from 'firebase/functions';
 import {fbGetApp} from 'src/lib/myfirebase'
-import {answerMeDirect, createEmbeddingDirect} from 'src/lib/ai/openaiWrapper'
+import {answerMeDirect, createEmbeddingDirect, createTranscriptionDirect} from 'src/lib/ai/openaiWrapper'
 
 const FUNCTIONS_REGION = 'asia-northeast1'
 
@@ -27,3 +27,6 @@ export async function createEmbedding(arg: {input:string}) {
   return await doGeneric(arg, 'createEmbedding', createEmbeddingDirect)
 }
 
+export async function createTranscription(arg: {blob:Blob}) {
+  return await doGeneric(arg, 'createTranscription', createTranscriptionDirect)
+}
