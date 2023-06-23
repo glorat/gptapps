@@ -106,3 +106,10 @@ export async function answerMeDirect(arg: {context: string, userPrompt: string, 
   // Could potentially also detect "I don't know" and return undefined in that case
   return res
 }
+
+export async function createTranscriptionDirect(arg: {blob:Blob}) {
+  const blob = arg.blob
+  const file = new File([blob], 'recording.wav', { type: 'audio/wav' });
+  const res = await getOpenAIAPI().createTranscription(file, 'whisper-1');
+  return res.data?.text;
+}

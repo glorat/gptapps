@@ -7,26 +7,26 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
-import {getOpenAIAPI} from "src/lib/ai/config";
+<script setup lang="ts">
+import {Ref, ref} from 'vue'
+import {createTranscription} from 'src/lib/ai/openaiFacade'
 
 const recording = ref(false);
-const mediaRecorder = ref(null);
-const audioUrl = ref(null);
+const mediaRecorder:Ref<MediaRecorder|null> = ref(null);
+const audioUrl:Ref<string> = ref('');
 const emit = defineEmits(['message'])
 const toggleRecording = async () => {
   try {
-    if (recording.value) {
+    if (recording.value && mediaRecorder.value) {
       mediaRecorder.value.stop();
       recording.value = false;
     } else {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorder.value = new MediaRecorder(stream);
       recording.value = true;
-      audioUrl.value = null;
+      audioUrl.value = '';
 
-      const recordedChunks = [];
+      const recordedChunks:Blob[] = [];
       mediaRecorder.value.ondataavailable = (event) => {
         if (event.data.size > 0) {
           recordedChunks.push(event.data);
@@ -37,8 +37,8 @@ const toggleRecording = async () => {
         const blob = new Blob(recordedChunks, { type: 'audio/wav' });
         const file = new File([blob], 'recording.wav', { type: 'audio/wav' });
         audioUrl.value = URL.createObjectURL(file);
-        const res = await getOpenAIAPI().createTranscription(file, 'whisper-1');
-        emit('message', res.data?.text);
+        const text = await createTranscription({blob})
+        emit('message', text);
         mediaRecorder.value = null
       };
 
