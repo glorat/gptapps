@@ -26,6 +26,7 @@
     "firebase": "^9.20.0",
     "firebase-tools": "^11.28.0",
     "firebaseui": "^6.0.2",
+    "form-data": "^4.0.0",
     "franc": "^6.1.0",
     "gpt-tokenizer": "^2.1.1",
     "lodash": "^4.17.21",
@@ -61,7 +62,7 @@
     "workbox-strategies": "^6.5.0"
   },
   "engines": {
-    "node": "^18 || ^16 || ^14.19",
+    "node": "^18",
     "npm": ">= 6.13.4",
     "yarn": ">= 1.21.1"
   },

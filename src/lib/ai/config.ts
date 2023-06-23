@@ -1,5 +1,7 @@
 import {Configuration, ConfigurationParameters, OpenAIApi} from 'openai';
 
+import FormData from 'form-data'
+
 type OpenAIEngine = 'text-ada-001' |  'text-davinci-003'
 
 const engineId: OpenAIEngine = 'text-davinci-003'
@@ -10,8 +12,8 @@ export const Config = {
 }
 
 class CustomFormData extends FormData {
-  getHeaders() {
-    return {}
+  getHeaders(): Record<string, string> {
+    return {};
   }
 }
 
