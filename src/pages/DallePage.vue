@@ -20,6 +20,7 @@
 import { getOpenAIAPI } from 'src/lib/ai/config';
 import CreateImageRequestEditor from 'components/CreateImageRequestEditor.vue';
 import { ref } from 'vue';
+import {createImage} from "src/lib/ai/openaiFacade";
 
 const request = ref({});
 const data = ref([]);
@@ -29,10 +30,10 @@ const loading = ref(false); // Flag to track the loading state
 async function generate() {
   loading.value = true; // Set loading to true when generating
   try {
-    const res = await getOpenAIAPI().createImage(request.value);
-    console.log(res);
-    if (res.data.data) {
-      data.value = res.data.data;
+    const resdata = await createImage({request: request.value})
+    console.log(resdata);
+    if (resdata.created) {
+      data.value = resdata.data;
     }
   } catch (error) {
     console.error('Error generating image:', error);
