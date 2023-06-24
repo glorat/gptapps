@@ -2,6 +2,8 @@ import {logger} from 'src/lib/ai/logger'
 import {getFunctions, httpsCallable} from 'firebase/functions';
 import {fbGetApp} from 'src/lib/myfirebase'
 import {answerMeDirect, createEmbeddingDirect, createTranscriptionDirect} from 'src/lib/ai/openaiWrapper'
+import {CreateImageRequest, ImagesResponse} from 'openai'
+import {getOpenAIAPI} from 'src/lib/ai/config'
 
 const FUNCTIONS_REGION = 'asia-northeast1'
 
@@ -29,4 +31,8 @@ export async function createEmbedding(arg: {input:string}) {
 
 export async function createTranscription(arg: {blob:Blob}) {
   return await doGeneric(arg, 'createTranscription', createTranscriptionDirect)
+}
+
+export async function createImage(arg: {request:CreateImageRequest}): Promise<ImagesResponse> {
+  return await doGeneric(arg, 'createImage', async () => (await getOpenAIAPI().createImage(arg.request)).data)
 }
