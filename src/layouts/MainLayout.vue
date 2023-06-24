@@ -15,8 +15,14 @@
           GPT Apps
         </q-toolbar-title>
 
-        <div><q-input label="Open AI Endpoint" type="text" filled v-model="apiUrl" @update:model-value="onApiUrlChange"></q-input></div>
-        <div><q-input label="Open AI Key" type="password" filled v-model="openaikey" @update:model-value="onKeyChange"></q-input></div>
+        <div>
+          <q-input label="Open AI Endpoint" type="text" filled v-model="apiUrl"
+                   @update:model-value="onApiUrlChange"></q-input>
+        </div>
+        <div>
+          <q-input label="Open AI Key" type="password" filled v-model="openaikey"
+                   @update:model-value="onKeyChange"></q-input>
+        </div>
       </q-toolbar>
     </q-header>
 
@@ -29,7 +35,7 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <router-view/>
     </q-page-container>
   </q-layout>
 </template>
@@ -37,7 +43,7 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue'
 import MyAside from 'layouts/MyAside.vue'
-import {Config, OpenAIParams} from 'src/lib/ai/config'
+import {OpenAIParams} from 'src/lib/ai/config'
 
 const leftDrawerOpen = ref(false)
 
@@ -56,14 +62,17 @@ onMounted(() => {
     OpenAIParams.basePath = url
   }
 })
+
 function onKeyChange() {
   localStorage?.setItem('openaikey', openaikey.value)
   OpenAIParams.apiKey = openaikey.value
 }
+
 function onApiUrlChange() {
   localStorage?.setItem('apiUrl', apiUrl.value)
   OpenAIParams.basePath = apiUrl.value
 }
+
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
