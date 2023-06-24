@@ -46,8 +46,16 @@ watch(
 watch(
   () => props.modelValue,
   (newVal: CreateImageRequest) => {
-    modelValue.value = Object.assign({}, defaultValues, newVal);
+    if (newVal) {
+      // Only assign default values if the field is undefined
+      modelValue.value.prompt = newVal.prompt ?? defaultValues.prompt;
+      modelValue.value.n = newVal.n ?? defaultValues.n;
+      modelValue.value.size = newVal.size ?? defaultValues.size;
+      modelValue.value.response_format = newVal.response_format ?? defaultValues.response_format;
+      modelValue.value.user = newVal.user ?? defaultValues.user;
+    }
   },
   { immediate: true }
 );
+
 </script>
