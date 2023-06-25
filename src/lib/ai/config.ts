@@ -22,6 +22,24 @@ export const OpenAIParams: ConfigurationParameters = {
   formDataCtor: CustomFormData
 }
 
+export interface AiUserSettings {
+  server: 'openai' | 'azure' | 'hosted'
+  azureSettings: {apiKey:string, basePath:string}, // only applicable if server is 'azure
+  openaiSettings: {apiKey: string}, // only applicable if server is 'openai'
+}
+
+export function applyAiUserSettings(settings:AiUserSettings) {
+  if (settings.server === 'openai') {
+    OpenAIParams.apiKey = settings.openaiSettings.apiKey
+    OpenAIParams.basePath = undefined
+  } else if (settings.server === 'azure') {
+    OpenAIParams.apiKey = settings.azureSettings.apiKey
+    OpenAIParams.basePath = settings.azureSettings.basePath
+  } else {
+    throw 'not yet available feature'
+  }
+}
+
 export const getOpenAIAPI = (deployment?: string) => {
   if (!OpenAIParams.apiKey) throw new Error('OPENAPI_KEY env not setup. Please check .env file or environment variables')
   const params = {...OpenAIParams}
