@@ -1,8 +1,8 @@
 <template>
   <div>
-    <q-radio v-model="settings.server" val="openai" label="OpenAI" color="primary" />
-    <q-radio v-model="settings.server" val="azure" label="Azure" color="primary" />
-    <q-radio v-model="settings.server" val="hosted" label="Hosted" color="primary" />
+    <q-radio v-model="settings.server" val="openai" label="OpenAI" color="primary"/>
+    <q-radio v-model="settings.server" val="azure" label="Azure" color="primary"/>
+    <q-radio v-model="settings.server" val="hosted" label="Hosted" color="primary"/>
 
     <q-card v-if="settings.server === 'azure'">
       <q-card-section>
@@ -33,7 +33,9 @@
 
     <q-card v-else>
       <q-card-section>
-        Obtain an openai key from <a href="https://platform.openai.com/account/api-keys">your openai account</a> and paste below
+        Obtain an OpenAI key from
+        <a href="https://platform.openai.com/account/api-keys">your OpenAI account</a>
+        and paste below
       </q-card-section>
       <q-card-section>
         <q-input
@@ -49,21 +51,29 @@
       color="primary"
       @click="saveSettings"
       :disable="isSavingSettings"
+      :icon="matSave"
     />
-    <q-btn label="Reset" color="secondary" @click="resetSettings" />
+    <q-btn label="Reset" color="secondary" @click="resetSettings" :icon="matRefresh"/>
+    <q-btn
+      label="Share Settings"
+      color="primary"
+      :icon="matShare"
+      @click="shareSettings"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { createEmbedding } from 'src/lib/ai/openaiFacade'
-import { Notify } from 'quasar'
-import {applyAiUserSettings, Config, getOpenAIAPI} from 'src/lib/ai/config'
+import {ref, onMounted} from 'vue'
+import {createEmbedding} from 'src/lib/ai/openaiFacade'
+import {Dialog, Notify, useQuasar} from 'quasar'
+import {applyAiUserSettings, Config, getOpenAIAPI, getSettingsFromLocalStorage} from 'src/lib/ai/config'
+import {matRefresh, matSave, matShare} from "@quasar/extras/material-icons";
 
 const settings = ref({
   server: 'openai',
-  azureSettings: { apiKey: '', basePath: '' },
-  openaiSettings: { apiKey: '' }
+  azureSettings: {apiKey: '', basePath: ''},
+  openaiSettings: {apiKey: ''}
 })
 
 const isSavingSettings = ref(false)
@@ -73,10 +83,9 @@ onMounted(() => {
 })
 
 function loadSettingsFromLocalStorage() {
-  const savedSettings = localStorage.getItem('aiUserSettings')
+  const savedSettings = getSettingsFromLocalStorage()
   if (savedSettings) {
-    settings.value = JSON.parse(savedSettings)
-    applyAiUserSettings(settings.value)
+    settings.value = savedSettings
   }
 }
 
@@ -84,12 +93,12 @@ async function saveSettings() {
   try {
     isSavingSettings.value = true
     applyAiUserSettings(settings.value)
-    const res = await getOpenAIAPI().createEmbedding({input:'test', model: Config.embedModel})
+    const res = await getOpenAIAPI().createEmbedding({input: 'test', model: Config.embedModel})
     console.log(res)
     localStorage.setItem('aiUserSettings', JSON.stringify(settings.value))
-    Notify.create({ type: 'positive', message: 'Settings applied successfully' })
+    Notify.create({type: 'positive', message: 'Settings applied successfully'})
   } catch (e) {
-    Notify.create({ type: 'negative', message: 'Invalid settings. Please fix or reset' })
+    Notify.create({type: 'negative', message: 'Invalid settings. Please fix or reset'})
   } finally {
     isSavingSettings.value = false
   }
@@ -97,5 +106,38 @@ async function saveSettings() {
 
 function resetSettings() {
   loadSettingsFromLocalStorage()
+}
+
+async function copyUrlToClipboard() {
+  try {
+    const baseURL = window.location.origin
+    const configParam = encodeURIComponent(JSON.stringify(settings.value))
+    const url = new URL(baseURL)
+    url.searchParams.append('config', configParam)
+    const urlToCopy = url.href
+
+    await navigator.clipboard.writeText(urlToCopy)
+    Notify.create({
+      type: 'positive',
+      message: 'URL copied to clipboard',
+      timeout: 2000
+    })
+  } catch (error) {
+    Notify.create({
+      type: 'negative',
+      message: 'Failed to copy URL to clipboard',
+      timeout: 2000
+    })
+  }
+}
+
+function shareSettings() {
+  Dialog.create({
+    title: 'Warning',
+    message: 'Sharing your settings may expose sensitive information. Proceed with caution.',
+    persistent: true,
+    ok: 'Proceed',
+    cancel: 'Cancel'
+  }).onOk(copyUrlToClipboard)
 }
 </script>
