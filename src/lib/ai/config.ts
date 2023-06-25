@@ -1,4 +1,4 @@
-import {Configuration, ConfigurationParameters, OpenAIApi} from 'openai';
+import {Configuration, ConfigurationParameters, OpenAIApi} from 'openai'
 
 import FormData from 'form-data'
 
@@ -59,4 +59,14 @@ export const getOpenAIAPI = (deployment?: string) => {
     }
   }
   return new OpenAIApi(new Configuration(params));
+}
+
+export function getSettingsFromLocalStorage() {
+  const savedSettings = localStorage.getItem('aiUserSettings')
+  if (savedSettings) {
+    const settings = JSON.parse(savedSettings)
+    applyAiUserSettings(settings)
+    return settings
+  }
+
 }
