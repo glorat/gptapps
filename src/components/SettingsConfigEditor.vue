@@ -93,7 +93,8 @@ async function saveSettings() {
   try {
     isSavingSettings.value = true
     applyAiUserSettings(settings.value)
-    const res = await getOpenAIAPI().createEmbedding({input: 'test', model: Config.embedModel})
+    // TODO: When hosted works, replace this with API call but without retries
+    const res = await getOpenAIAPI(Config.embedModel).createEmbedding({input: 'test', model: Config.embedModel})
     console.log(res)
     localStorage.setItem('aiUserSettings', JSON.stringify(settings.value))
     Notify.create({type: 'positive', message: 'Settings applied successfully'})
