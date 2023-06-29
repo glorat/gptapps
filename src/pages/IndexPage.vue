@@ -3,18 +3,13 @@
     <div class="q-pa-md">
       <div class="q-gutter-md">
         <div class="q-col-12">
-          <ul>
-            <li>Step 1: Obtain an openai key from <a href="https://platform.openai.com/account/api-keys">your openai account</a></li>
-            <li>Step 2: Enter your openai key in the top right</li>
-            <li>Step 3: Use the following available tools</li>
-          </ul>
+          <markdown-render page="home.md"></markdown-render>
         </div>
         <div class="q-col-12">
-          <q-card @click="onClick()" class="my-card">
+          <q-card v-for="tool in tools" :key="tool.path" @click="onClick(tool.path)" class="my-card">
             <q-card-section class="q-pa-md">
-              Large document question and answer
+              {{ tool.description }}
             </q-card-section>
-
           </q-card>
         </div>
       </div>
@@ -25,15 +20,21 @@
 <script setup lang="ts">
 import {onMounted, ref, Ref} from 'vue'
 import {useRouter} from 'vue-router'
+import MarkdownRender from 'components/MarkdownRender.vue'
 
 const router = useRouter()
+
+const tools = [
+  {path: '/qdoc', description: 'Large document question and answer'},
+  {path: '/dalle', description: 'DALL-E AI image generation'},
+]
 
 onMounted(async () => {
 
 })
 
-function onClick() {
-  router.push('/qdoc')
+function onClick(path:string) {
+  router.push(path)
 
 }
 
