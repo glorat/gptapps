@@ -958,6 +958,11 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
+"@dqbd/tiktoken@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@dqbd/tiktoken/-/tiktoken-1.0.7.tgz#612871cf91eba5599c804f100c573aa4d8596f57"
+  integrity sha512-bhR5k5W+8GLzysjk8zTMVygQZsgvf7W1F0IlL4ZQ5ugjo5rCyiwGM5d8DYriXspytfu98tv59niang3/T+FoDw==
+
 "@esbuild/android-arm64@0.17.19":
   version "0.17.19"
   resolved "https://registry.yarnpkg.com/@esbuild/android-arm64/-/android-arm64-0.17.19.tgz#bafb75234a5d3d1b690e7c2956a599345e84a2fd"
@@ -2432,6 +2437,11 @@
   optionalDependencies:
     "@vue/compiler-dom" "^3.0.1"
     "@vue/server-renderer" "^3.0.1"
+
+"@waylaidwanderer/fetch-event-source@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@waylaidwanderer/fetch-event-source/-/fetch-event-source-3.0.1.tgz#4a000462513066b18a167ab87a59bd640fd7bca4"
+  integrity sha512-gkc7vmBW9uulRj7tY30/1D8iBrpcgphBpI+e7LP744x/hAzaQxUuyF+n4O5dctKx+dE3i4BFuCWMEz9fAx2jlQ==
 
 abbrev@^1.0.0:
   version "1.1.1"
