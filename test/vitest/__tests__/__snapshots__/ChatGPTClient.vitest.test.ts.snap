@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ChatGPTClient with bad key > should error on send 1`] = `
+[Error: Failed to send message. HTTP 401 - {
+    "error": {
+        "message": "Incorrect API key provided: A bad key. You can find your API key at https://platform.openai.com/account/api-keys.",
+        "type": "invalid_request_error",
+        "param": null,
+        "code": "invalid_api_key"
+    }
+}
+]
+`;

@@ -2,19 +2,23 @@ import {describe, it, expect} from 'vitest'
 
 import ChatGPTClient from "src/lib/ai/ChatGPTClient";
 
-const cache:Record<string, any> = {}
+const createCache = (cache:Record<string, any>) => {
+  const getCache = async(id:string):Promise<any> => cache[id]
+  const setCache = async(id:string, value:any):Promise<void> => {
+    // console.log(`setting cache ${id} to `, value)
+    cache[id] = value
+    return
+  }
+  const convCache = {get:getCache, set:setCache}
+  return convCache
+}
 
 describe('ChatGPTClient', async () => {
   let client: ChatGPTClient
+  const cache:Record<string, any> = {}
 
   it('should init client', () => {
-    const getCache = async(id:string):Promise<any> => cache[id]
-    const setCache = async(id:string, value:any):Promise<void> => {
-      // console.log(`setting cache ${id} to `, value)
-      cache[id] = value
-      return
-    }
-    const convCache = {get:getCache, set:setCache}
+    const convCache = createCache(cache)
     client = new ChatGPTClient(process.env.OPENAPI_KEY, {}, convCache)
   })
   let conversationId: string;
@@ -39,19 +43,35 @@ describe('ChatGPTClient', async () => {
   });
 })
 
-describe('ChatGPTClient streaming', () => {
+describe('ChatGPTClient with bad key', async () => {
   let client: ChatGPTClient
+  const cache:Record<string, any> = {}
 
   it('should init client', () => {
-    const getCache = async(id:string):Promise<any> => cache[id]
-    const setCache = async(id:string, value:any):Promise<void> => {
-      // console.log(`setting cache ${id} to `, value)
-      cache[id] = value
-      return
+    const convCache = createCache(cache)
+    client = new ChatGPTClient('A bad key', {}, convCache)
+  })
+
+  it('should error on send', async () => {
+    try {
+      await client.sendMessage('hello')
     }
-    const cache = {get:getCache, set:setCache}
+    catch (e:any) {
+      console.log((e as Error).message)
+      expect(e).toMatchSnapshot()
+    }
+
+  })
+})
+
+describe('ChatGPTClient streaming', () => {
+  let client: ChatGPTClient
+  const cache:Record<string, any> = {}
+
+  it('should init client', () => {
+    const convCache = createCache(cache)
     const options = {onProgress: (x) => console.log(x)}
-    client = new ChatGPTClient(process.env.OPENAPI_KEY, options, cache)
+    client = new ChatGPTClient(process.env.OPENAPI_KEY, options, convCache)
   })
 
 

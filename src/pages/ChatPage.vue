@@ -10,6 +10,7 @@
                @keydown.enter="sendMessage"
                placeholder="Type your message"/>
       <q-btn round flat icon="mic"/>
+      <q-btn round flat icon="speaker"/>
       <q-btn @click="sendMessage" flat class="q-ml-sm" icon="send" color="primary"/>
     </q-toolbar>
   </q-page-sticky>
@@ -21,7 +22,7 @@ import {computed, ComputedRef, reactive, ref} from 'vue'
 import ChatComponent from 'components/ChatComponent.vue'
 import ChatGPTClient from 'src/lib/ai/ChatGPTClient'
 import {getOpenAIAPI, OpenAIParams} from 'src/lib/ai/config'
-import {v4 as uuidv4} from 'uuid'
+import {v4, v4 as uuidv4} from 'uuid'
 
 const cache = reactive({})
 const getCache = async(id:string):Promise<any> => cache[id]
@@ -44,7 +45,7 @@ const messagesWithProgress = computed(() => {
   let ret = messages.value ?? []
   if (progressChunks && progressChunks.length) {
     // const sendMessage = {id:'', message: newMessage.value, role: 'User'}
-    const progressMessage = {id: '', message: progressChunks.join(''), role: 'Other'}
+    const progressMessage = {id: v4(), message: progressChunks.join(''), role: 'Other'}
     return [...ret, progressMessage]
   } else {
     return ret

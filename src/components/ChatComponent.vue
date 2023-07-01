@@ -8,7 +8,7 @@
       </q-avatar>
     </div>
     <div class="message-content">
-      {{ message.message }}
+      <markdown-render :source="message.message"></markdown-render>
     </div>
   </q-card>
 
@@ -16,6 +16,7 @@
 
 <script setup lang="ts">
 import {computed} from 'vue'
+import MarkdownRender from 'components/MarkdownRender.vue'
 
 const props = defineProps(['messages'])
 const messages = computed(() => props.messages)
