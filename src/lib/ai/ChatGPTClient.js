@@ -4,12 +4,13 @@
  * - Replace cacheOptions with cache, to decouple from keyv, which doesn't work in browser
  * - Remove undici, which doesn't work in browser
  * - Remove proxying support
+ * - use uuid instead of crypto
  */
 
 // import './fetch-polyfill.js'; // undici polyfill for nodejs
-import crypto from 'crypto';
-import { encoding_for_model as encodingForModel, get_encoding as getEncoding } from '@dqbd/tiktoken';
+import { encodingForModel, getEncoding } from 'js-tiktoken';
 import { fetchEventSource } from '@waylaidwanderer/fetch-event-source';
+import { v4 as uuidv4 } from 'uuid';
 
 const CHATGPT_MODEL = 'gpt-3.5-turbo';
 
@@ -309,8 +310,8 @@ ${botMessage.message}
       this.setOptions(opts.clientOptions);
     }
 
-    const conversationId = opts.conversationId || crypto.randomUUID();
-    const parentMessageId = opts.parentMessageId || crypto.randomUUID();
+    const conversationId = opts.conversationId || uuidv4();
+    const parentMessageId = opts.parentMessageId || uuidv4();
 
     let conversation = typeof opts.conversation === 'object'
       ? opts.conversation
@@ -328,7 +329,7 @@ ${botMessage.message}
     const shouldGenerateTitle = opts.shouldGenerateTitle && isNewConversation;
 
     const userMessage = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       parentMessageId,
       role: 'User',
       message,
@@ -399,7 +400,7 @@ ${botMessage.message}
     reply = reply.trim();
 
     const replyMessage = {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       parentMessageId: userMessage.id,
       role: 'ChatGPT',
       message: reply,
@@ -503,7 +504,9 @@ ${botMessage.message}
         promptBody = newPromptBody;
         currentTokenCount = newTokenCount;
         // wait for next tick to avoid blocking the event loop
-        await new Promise(resolve => setImmediate(resolve));
+        if (typeof setImmediate !== 'undefined') {
+          await new Promise(resolve => setImmediate(resolve));
+        }
         return buildPromptBody();
       }
       return true;

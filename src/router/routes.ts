@@ -1,5 +1,5 @@
 import { RouteRecordRaw } from 'vue-router';
-import {matAudiotrack, matHome, matImage, matPerson, matSettings} from '@quasar/extras/material-icons'
+import {matAudiotrack, matChat, matHome, matImage, matPerson, matSettings} from '@quasar/extras/material-icons'
 
 const children: RouteRecordRaw[] = [
   { path: '/', component: () => import('pages/IndexPage.vue'), meta: {title:'Home', icon:matHome}  },
@@ -8,6 +8,7 @@ const children: RouteRecordRaw[] = [
   { path: '/audio', name: 'audio', component: () => import('pages/AudioPage.vue'), meta: {title:'Audio', icon:matAudiotrack}  },
   { path: '/dalle', name: 'dalle', component: () => import('pages/DallePage.vue'), meta: {title:'Dall-E', icon:matImage}  },
   { path: '/settings', name: 'settings', component: () => import('pages/SettingsPage.vue'), meta: {title:'Settings', icon:matSettings}  },
+  { path: '/chat', name: 'chat', component: () => import('pages/ChatPage.vue'), meta: {title:'Chat', icon:matChat}  },
 
 
 ]

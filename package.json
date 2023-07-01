@@ -31,6 +31,7 @@
     "form-data": "^4.0.0",
     "franc": "^6.1.0",
     "gpt-tokenizer": "^2.1.1",
+    "js-tiktoken": "^1.0.7",
     "lodash": "^4.17.21",
     "lru-cache": "^9.1.2",
     "marked": "^5.1.0",
@@ -39,6 +40,7 @@
     "pino": "^8.14.1",
     "quasar": "^2.6.0",
     "retry": "^0.13.1",
+    "uuid": "^9.0.0",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0"
   },
@@ -46,6 +48,7 @@
     "@quasar/app-vite": "^1.0.0",
     "@quasar/quasar-app-extension-testing-unit-vitest": "^0.3.0",
     "@types/node": "^12.20.21",
+    "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^5.10.0",
     "@typescript-eslint/parser": "^5.10.0",
     "@vue/test-utils": "^2.0.0",

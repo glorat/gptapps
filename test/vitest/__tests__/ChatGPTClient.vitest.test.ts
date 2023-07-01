@@ -14,8 +14,8 @@ describe('ChatGPTClient', async () => {
       cache[id] = value
       return
     }
-    const cache = {get:getCache, set:setCache}
-    client = new ChatGPTClient(process.env.OPENAPI_KEY, {}, cache)
+    const convCache = {get:getCache, set:setCache}
+    client = new ChatGPTClient(process.env.OPENAPI_KEY, {}, convCache)
   })
   let conversationId: string;
   let messageId: string;
@@ -34,6 +34,8 @@ describe('ChatGPTClient', async () => {
       parentMessageId: messageId,
     });
     expect(res2.response).toContain('John Smith');
+
+    console.log(cache[conversationId])
   });
 })
 
