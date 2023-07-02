@@ -1,7 +1,12 @@
 import {logger} from 'src/lib/ai/logger'
 import {getFunctions, httpsCallable} from 'firebase/functions';
 import {fbGetApp} from 'src/lib/myfirebase'
-import {answerMeDirect, createEmbeddingDirect, createTranscriptionDirect} from 'src/lib/ai/openaiWrapper'
+import {
+  answerMeDirect,
+  createEmbeddingDirect,
+  createTranscriptionDirect,
+  sendChatMessageDirect
+} from 'src/lib/ai/openaiWrapper'
 import {CreateImageRequest, ImagesResponse} from 'openai'
 import {getOpenAIAPI} from 'src/lib/ai/config'
 
@@ -35,4 +40,8 @@ export async function createTranscription(arg: {blob:Blob}) {
 
 export async function createImage(arg: {request:CreateImageRequest}): Promise<ImagesResponse> {
   return await doGeneric(arg, 'createImage', async () => (await getOpenAIAPI().createImage(arg.request)).data)
+}
+
+export async function sendChatMessage(arg:{message:string, clientOptions?:any, chatOptions?:any, cache: any}): Promise<ReturnType<typeof sendChatMessageDirect>> {
+  return await doGeneric(arg, 'sendChatMessage', sendChatMessageDirect)
 }

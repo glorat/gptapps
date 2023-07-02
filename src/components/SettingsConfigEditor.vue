@@ -35,7 +35,7 @@
       <q-card-section>
         Obtain an OpenAI key from
         <a href="https://platform.openai.com/account/api-keys">your OpenAI account</a>
-        and paste below
+        and paste below. Pay only for what you use!
       </q-card-section>
       <q-card-section>
         <q-input

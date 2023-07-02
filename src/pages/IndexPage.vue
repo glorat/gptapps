@@ -7,8 +7,11 @@
         </div>
         <div class="q-col-12">
           <q-card v-for="tool in tools" :key="tool.path" @click="onClick(tool.path)" class="my-card">
-            <q-card-section class="q-pa-md">
-              {{ tool.description }}
+            <q-card-section horizontal>
+              <q-card-section><q-avatar color="primary" text-color="white" :icon="tool.meta.icon"></q-avatar></q-card-section>
+              <q-card-section class="q-pa-md">
+                <span>{{ tool.description }}</span>
+              </q-card-section>
             </q-card-section>
           </q-card>
         </div>
@@ -21,13 +24,11 @@
 import {onMounted, ref, Ref} from 'vue'
 import {useRouter} from 'vue-router'
 import MarkdownRender from 'components/MarkdownRender.vue'
+import {aiTools} from 'src/router/routes'
 
 const router = useRouter()
 
-const tools = [
-  {path: '/qdoc', description: 'Large document question and answer'},
-  {path: '/dalle', description: 'DALL-E AI image generation'},
-]
+const tools = aiTools
 
 onMounted(async () => {
 

@@ -4,11 +4,12 @@
  * Function must be idempotent
  */
 import {CreateEmbeddingRequest} from 'openai'
-import {Config, getOpenAIAPI} from 'src/lib/ai/config'
+import {Config, getOpenAIAPI, OpenAIParams} from 'src/lib/ai/config'
 import {logger} from 'src/lib/ai/logger'
 import {callWithRetry} from 'src/lib/ai/callWithRetry'
 import {LRUCache} from 'lru-cache'
 import SHA256 from 'crypto-js/sha256';
+import ChatGPTClient from 'src/lib/ai/ChatGPTClient'
 
 export const embedsCache = new LRUCache<string, number[]>({max: 3000})
 
@@ -112,4 +113,12 @@ export async function createTranscriptionDirect(arg: {blob:Blob}) {
   const file = new File([blob], 'recording.wav', { type: 'audio/wav' });
   const res = await getOpenAIAPI().createTranscription(file, 'whisper-1');
   return res.data?.text;
+}
+
+export async function sendChatMessageDirect(arg: {message:string, chatOptions?:any, cache: any, clientOptions?:any}) {
+  const clientOptions = {}
+  // TODO: make this work for Azure too
+  const client = new ChatGPTClient(OpenAIParams.apiKey, clientOptions ?? {}, arg.cache)
+  const res = await client.sendMessage(arg.message, arg.chatOptions)
+  return res
 }
