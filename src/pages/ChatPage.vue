@@ -1,16 +1,16 @@
 <template>
   <q-page>
     <chat-component :messages="messagesWithProgress"></chat-component>
+    <div style="background-color: white; height: 50px"></div>
   </q-page>
   <q-page-sticky position="bottom">
     <q-toolbar class="bg-grey-3 text-black row">
-      <q-btn round flat icon="insert_emoticon" class="q-mr-sm"/>
-      <q-input rounded outlined dense class="WAL__field col-grow q-mr-sm" bg-color="white"
+      <q-input rounded outlined dense class="WAL__field q-mr-sm" bg-color="white"
                v-model="newMessage"
                @keydown.enter="sendMessage"
                placeholder="Type your message"/>
-      <q-btn round flat icon="mic"/>
-      <q-btn round flat icon="speaker"/>
+      <q-btn disable round flat :icon="matMic"/>
+      <q-btn disable round flat :icon="true ? matVolumeUp : matVolumeOff"/>
       <q-btn @click="sendMessage" flat class="q-ml-sm" icon="send" color="primary"/>
     </q-toolbar>
   </q-page-sticky>
@@ -23,6 +23,8 @@ import ChatComponent from 'components/ChatComponent.vue'
 import ChatGPTClient from 'src/lib/ai/ChatGPTClient'
 import {getOpenAIAPI, OpenAIParams} from 'src/lib/ai/config'
 import {v4, v4 as uuidv4} from 'uuid'
+import {matMic, matVolumeOff, matVolumeUp} from '@quasar/extras/material-icons'
+import {sendChatMessage} from 'src/lib/ai/openaiFacade'
 
 const cache = reactive({})
 const getCache = async(id:string):Promise<any> => cache[id]
@@ -77,8 +79,8 @@ const sendMessage = async () => {
     console.log('New Message:', msg)
 
     const options = convMessageOptions()
-    const client = new ChatGPTClient(OpenAIParams.apiKey, {}, convCache)
-    const res = await client.sendMessage(msg, options)
+    const res = await sendChatMessage({message: msg, chatOptions:options, cache: convCache})
+
     currentConversation.value = res.conversationId
     progressChunks.length = 0
     newMessage.value = ''

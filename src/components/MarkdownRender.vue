@@ -98,8 +98,7 @@ const content = ref('Loading...');
 
 const md = new MarkdownIt({
   highlight: (str: string, lang: string) => {
-    const bar = `<div><span>${lang}</span><button
-          className="ml-auto flex gap-2"></button></div>`
+    const bar = `<div style="background: #b3d4fc"><span>${lang}</span></div>`
     if (lang && Prism.languages[lang]) {
       try {
         return `${bar}<pre class="language-${lang}"><code>${Prism.highlight(
@@ -153,5 +152,8 @@ watch(() => props.page, (val) => {
 
 <style>
 @import 'prismjs/themes/prism.css';
-
+/* Reset the margin so we can have the bar above*/
+pre[class*="language-"] {
+  margin-top: 0px;
+}
 </style>

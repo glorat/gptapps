@@ -3,8 +3,11 @@
   <q-card v-for="message in messages" :key="message.id" class="message"
           :class="{ 'sender': message.role === 'User', 'receiver': message.sender !== 'Me' }">
     <div class="sender-avatar">
-      <q-avatar :color="getAvatarColor(message.role)">
-        {{ getAvatarInitials(message.role) }}
+      <q-avatar v-if="message.role=='User'" :color="getAvatarColor(message.role)" :icon="matPerson">
+
+      </q-avatar>
+      <q-avatar v-else>
+        <img src="/icons/favicon-96x96.png">
       </q-avatar>
     </div>
     <div class="message-content">
@@ -17,6 +20,7 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import MarkdownRender from 'components/MarkdownRender.vue'
+import {matPerson} from '@quasar/extras/material-icons'
 
 const props = defineProps(['messages'])
 const messages = computed(() => props.messages)
