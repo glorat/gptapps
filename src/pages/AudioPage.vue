@@ -1,6 +1,6 @@
 <template>
   <q-page>
-    <audio-transcriber @message="onRecordedMessage"></audio-transcriber>
+    <audio-transcriber show-play @message="onRecordedMessage"></audio-transcriber>
   </q-page>
 </template>
 

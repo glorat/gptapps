@@ -9,7 +9,7 @@
                v-model="newMessage"
                @keydown.enter="sendMessage"
                placeholder="Type your message"/>
-      <q-btn disable round flat :icon="matMic"/>
+      <audio-transcriber @message="onAudioMessage"></audio-transcriber>
       <q-btn disable round flat :icon="true ? matVolumeUp : matVolumeOff"/>
       <q-btn @click="sendMessage" flat class="q-ml-sm" icon="send" color="primary"/>
     </q-toolbar>
@@ -25,6 +25,7 @@ import {getOpenAIAPI, OpenAIParams} from 'src/lib/ai/config'
 import {v4, v4 as uuidv4} from 'uuid'
 import {matMic, matVolumeOff, matVolumeUp} from '@quasar/extras/material-icons'
 import {sendChatMessage} from 'src/lib/ai/openaiFacade'
+import AudioTranscriber from 'components/AudioTranscriber.vue'
 
 const cache = reactive({})
 const getCache = async(id:string):Promise<any> => cache[id]
@@ -85,6 +86,10 @@ const sendMessage = async () => {
     progressChunks.length = 0
     newMessage.value = ''
   }
+}
+
+const onAudioMessage = (msg:string) => {
+  newMessage.value = msg
 }
 
 </script>
