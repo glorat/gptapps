@@ -62,13 +62,13 @@ describe('ChatGPTClient with bad key', async () => {
 })
 
 describe('ChatGPTClient streaming', () => {
-  const cache:Record<string, any> = {}
 
   it('should stream a message', async () => {
+    const cache:Record<string, any> = {}
     const chunks:string[] = []
     const convCache = createCache(cache)
-    const clientOptions = {onProgress: (x:string) => chunks.push(x)}
-    const res = await sendChatMessage({message:'Generate 50 words of random text?', clientOptions, cache:convCache})
+    const chatOptions = {onProgress: (x:string) => chunks.push(x)}
+    const res = await sendChatMessage({message:'Generate 50 words of random text?', chatOptions, cache:convCache})
     const { response } = res;
     // Accumulated stream should match final message
     expect(response).toEqual(chunks.join(''))
