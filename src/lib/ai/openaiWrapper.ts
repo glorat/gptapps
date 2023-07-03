@@ -4,7 +4,7 @@
  * Function must be idempotent
  */
 import {CreateEmbeddingRequest} from 'openai'
-import {Config, getOpenAIAPI, OpenAIParams} from 'src/lib/ai/config'
+import {Config, getOpenAIAPI, getOpenAIConfig, OpenAIParams} from 'src/lib/ai/config'
 import {logger} from 'src/lib/ai/logger'
 import {callWithRetry} from 'src/lib/ai/callWithRetry'
 import {LRUCache} from 'lru-cache'
@@ -115,10 +115,23 @@ export async function createTranscriptionDirect(arg: {blob:Blob}) {
   return res.data?.text;
 }
 
+function getChatGPTClientOptions(clientOptions?:any) {
+  const cfg = getOpenAIConfig(Config.chatModel)
+  if (cfg.basePath) {
+    // Set up azure mode
+    // https://kevin-test-openai-1.openai.azure.com//openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-03-15-preview
+    const opts = {azure: true, reverseProxyUrl: `${cfg.basePath}/chat/completions?api-version=2023-03-15-preview`}
+    return {...(clientOptions??{}), ...opts}
+  } else {
+    return clientOptions ?? {}
+  }
+
+}
+
 export async function sendChatMessageDirect(arg: {message:string, chatOptions?:any, cache: any, clientOptions?:any}) {
-  const clientOptions = {}
+  const clientOptions = getChatGPTClientOptions(arg.clientOptions)
   // TODO: make this work for Azure too
-  const client = new ChatGPTClient(OpenAIParams.apiKey, clientOptions ?? {}, arg.cache)
+  const client = new ChatGPTClient(OpenAIParams.apiKey, clientOptions, arg.cache)
   const res = await client.sendMessage(arg.message, arg.chatOptions)
   return res
 }
