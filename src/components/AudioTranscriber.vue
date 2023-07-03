@@ -1,7 +1,7 @@
 <template>
   <q-btn round flat :icon="recording ? matStop :matMic " :color="recording ? 'primary' : ''" @click="toggleRecording">
   </q-btn>
-  <btn v-if="props.showPlay" @click="playRecording" :disabled="!audioUrl">Play Recording</btn>
+  <q-btn v-if="props.showPlay" @click="playRecording" :disabled="!audioUrl">Play Recording</q-btn>
 </template>
 
 <script setup lang="ts">

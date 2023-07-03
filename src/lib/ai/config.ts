@@ -40,7 +40,7 @@ export function applyAiUserSettings(settings:AiUserSettings) {
   }
 }
 
-export const getOpenAIAPI = (deployment?: string) => {
+export function getOpenAIConfig(deployment?: string) {
   if (!OpenAIParams.apiKey) throw new Error('OPENAPI_KEY env not setup. Please check .env file or environment variables')
   const params = {...OpenAIParams}
   if (params.basePath) {
@@ -58,7 +58,12 @@ export const getOpenAIAPI = (deployment?: string) => {
       throw new Error(`Custom endpoint ${params.basePath} needs a deployment name`)
     }
   }
-  return new OpenAIApi(new Configuration(params));
+  return new Configuration(params)
+}
+
+export const getOpenAIAPI = (deployment?: string) => {
+  const config = getOpenAIConfig(deployment)
+  return new OpenAIApi(config);
 }
 
 export function getSettingsFromLocalStorage() {
