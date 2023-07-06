@@ -49,8 +49,8 @@
 
 <script setup lang="ts">
 import { ref, watch, nextTick, onMounted } from 'vue'
-import { performQna } from 'src/lib/ai/answer'
-import { createQnaStorageFromLargeContent } from 'src/lib/ai/largeDocQna'
+import {performQna, performQna2} from 'src/lib/ai/answer'
+import {createQnaStorageFromLargeContent, createVectorStoreFromLargeContent} from 'src/lib/ai/largeDocQna'
 import {exportFile, Notify} from 'quasar'
 
 const text = ref('')
@@ -98,11 +98,12 @@ async function doit() {
     answers.value = Array(questions.value.length).fill('')
     answerLoading.value = Array(questions.value.length).fill(true)
 
-    const storage = await createQnaStorageFromLargeContent(text.value, (p) => (embedProgress.value = p))
+    const vectorStore = await createVectorStoreFromLargeContent(text.value, (p)=>embedProgress.value=p)
+
     let idx = 0
     for (const question of questions.value) {
       console.log(`QUESTION ${idx}: ${question}`)
-      const response = await performQna(question, storage)
+      const response = await performQna2(question, vectorStore)
       answers.value[idx] = response ?? 'cannot answer'
       answerLoading.value[idx] = false
       console.log(`ANSWER ${idx}: ${response}`)
