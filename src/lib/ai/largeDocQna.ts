@@ -1,8 +1,10 @@
 import {chunkDocument} from './chunkDocument'
 import {range} from 'lodash'
 import {encode} from 'gpt-tokenizer'
-import {performQna} from 'src/lib/ai/answer'
 import {createEmbedding} from 'src/lib/ai/openaiFacade'
+import {Config, OpenAIParams} from 'src/lib/ai/config';
+import {OpenAIEmbeddings} from 'langchain/embeddings/openai';
+import {MemoryVectorStore} from 'langchain/vectorstores/memory';
 
 export interface EmbedsData { lengths: number[]; keys: string[]; tokens: number[]; embeds: number[][] }
 
@@ -13,9 +15,33 @@ export interface QnaStorage {
   writeEmbeds: (embeds: any) => Promise<void>
 }
 
+export async function createVectorStoreFromLargeContent(content: string, progress?: (p:number)=>void){
+  const docChunks = await chunkDocument(content)
+  const cfg = OpenAIParams
+  OpenAIEmbeddings.length
+
+  const embeddings = (cfg.basePath) ? new OpenAIEmbeddings({
+    azureOpenAIApiKey: cfg.apiKey as string,
+    azureOpenAIApiInstanceName: 'kevin-test-openai-1',
+    azureOpenAIApiDeploymentName: Config.embedModel,
+    azureOpenAIApiVersion: '2023-03-15-preview'
+  })  : new OpenAIEmbeddings({openAIApiKey: cfg.apiKey as string})
+
+  const vectorStore = new MemoryVectorStore(embeddings)
+  const embeds = []
+  for (let idx = 0; idx < docChunks.length; idx++) {
+    const chunk = docChunks[idx].pageContent;
+    if (progress) progress(idx / docChunks.length)
+    const result = await embeddings.embedQuery(chunk);
+    embeds.push(result);
+  }
+  await vectorStore.addVectors(embeds, docChunks)
+  //MemoryVectorStore.fromDocuments(docChunks, embeddings)
+  return vectorStore
+}
 
 export async function createQnaStorageFromLargeContent(content: string, progress?: (p:number)=>void): Promise<QnaStorage> {
-  const chunks = chunkDocument(content)
+  const chunks =(await chunkDocument(content)).map(d => d.pageContent)
   const embeds: any[] = [];
 
   // Ensure we request the embedding sequentially

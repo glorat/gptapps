@@ -3,6 +3,34 @@ import {callWithRetry} from './callWithRetry'
 import {logger} from './logger'
 import {QnaStorage} from 'src/lib/ai/largeDocQna'
 import {answerMe, createEmbedding} from 'src/lib/ai/openaiFacade'
+import {VectorStore} from 'langchain/vectorstores';
+
+
+export async function performQna2(question:string, db: VectorStore, prompt?: string): Promise<string|undefined> {
+  const similarities = await db.similaritySearch(question, 10)
+
+  const contexts = []
+  let contextLength = 0
+  const MAX_CONTEXT_LENGTH = 5000 // Maximum ~3500 tokens. But chars/token ratio is about 4
+
+  for (const similarity of similarities) {
+    const input = similarity.pageContent
+    if (input.length+contextLength > MAX_CONTEXT_LENGTH) {
+      break
+    }
+    contexts.push(input)
+    contextLength += input.length
+  }
+
+  logger.info(`best inputs: ${contexts.length} snippets`)
+  if (contexts.length>0) {
+    const bestInput = contexts.join('\n')
+    const answer = await answerMe({context: bestInput, userPrompt: question, initPrompt: prompt})
+    return answer
+  } else {
+    return undefined
+  }
+}
 
 export async function performQna(question:string, storage: QnaStorage, prompt?: string): Promise<string|undefined> {
   // const loader = loaderFromOpts(opts)
