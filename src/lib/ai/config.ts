@@ -1,6 +1,7 @@
 import {Configuration, ConfigurationParameters, OpenAIApi} from 'openai'
 
 import FormData from 'form-data'
+import ChatGPTClient from 'src/lib/ai/ChatGPTClient'
 
 type OpenAIEngine = 'text-ada-001' |  'text-davinci-003'
 
@@ -17,32 +18,59 @@ class CustomFormData extends FormData {
   }
 }
 
-export const OpenAIParams: ConfigurationParameters = {
-  apiKey: process.env.OPENAPI_KEY ?? '',
-  formDataCtor: CustomFormData
-}
 
+let aiUserSettings: Partial<AiUserSettings> = {
+  server: 'openai',
+  openaiSettings: {apiKey: process.env.OPENAPI_KEY??''},
+  unstructuredSettings: {endpoint: process.env.UNSTRUCTURED_URL ?? ''},
+}
 export interface AiUserSettings {
   server: 'openai' | 'azure' | 'hosted'
   azureSettings: {apiKey:string, basePath:string}, // only applicable if server is 'azure
   openaiSettings: {apiKey: string}, // only applicable if server is 'openai'
+  unstructuredSettings: {apiKey?: string, endpoint: string},
 }
 
 export function applyAiUserSettings(settings:AiUserSettings) {
+  aiUserSettings = {...settings}
+}
+
+function getOpenAIParams(settings = aiUserSettings) {
+  const OpenAIParams: ConfigurationParameters = {
+    apiKey: process.env.OPENAPI_KEY ?? '',
+    formDataCtor: CustomFormData
+  }
   if (settings.server === 'openai') {
-    OpenAIParams.apiKey = settings.openaiSettings.apiKey
+    OpenAIParams.apiKey = settings.openaiSettings?.apiKey
     OpenAIParams.basePath = undefined
+    return OpenAIParams
   } else if (settings.server === 'azure') {
-    OpenAIParams.apiKey = settings.azureSettings.apiKey
-    OpenAIParams.basePath = settings.azureSettings.basePath
+    OpenAIParams.apiKey = settings.azureSettings?.apiKey
+    OpenAIParams.basePath = settings.azureSettings?.basePath
+    return OpenAIParams
   } else {
     throw 'not yet available feature'
   }
 }
 
+export function getLangchainConfig() {
+  if (aiUserSettings.server === 'openai') {
+    return {openAIApiKey: aiUserSettings.openaiSettings?.apiKey}
+  } else if (aiUserSettings.server === 'azure') {
+    return {
+      azureOpenAIApiKey: aiUserSettings.azureSettings?.apiKey,
+      azureOpenAIApiInstanceName: 'kevin-test-openai-1', // FIXME: configurable
+      azureOpenAIApiDeploymentName: Config.embedModel,
+      azureOpenAIApiVersion: '2023-03-15-preview'
+    }
+  } else {
+    throw new Error('unsupported')
+  }
+}
+
 export function getOpenAIConfig(deployment?: string) {
-  if (!OpenAIParams.apiKey) throw new Error('OPENAPI_KEY env not setup. Please check .env file or environment variables')
-  const params = {...OpenAIParams}
+  if (!getOpenAIParams().apiKey) throw new Error('OPENAPI_KEY env not setup. Please check .env file or environment variables')
+  const params = {...getOpenAIParams()}
   if (params.basePath) {
     if (deployment) {
       const d2 = deployment.replaceAll(/\./g,'')
@@ -74,4 +102,25 @@ export function getSettingsFromLocalStorage() {
     return settings
   }
 
+}
+
+
+
+function getChatGPTClientOptions(clientOptions?:any) {
+  const cfg = getOpenAIConfig(Config.chatModel)
+  if (cfg.basePath) {
+    // Set up azure mode
+    // https://kevin-test-openai-1.openai.azure.com//openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-03-15-preview
+    const opts = {azure: true, reverseProxyUrl: `${cfg.basePath}/chat/completions?api-version=2023-03-15-preview`}
+    return {...(clientOptions??{}), ...opts}
+  } else {
+    return clientOptions ?? {}
+  }
+
+}
+
+export function getChatGPTClient(cache:any) {
+  const clientOptions = getChatGPTClientOptions()
+  const client = new ChatGPTClient(getOpenAIParams().apiKey, clientOptions, cache)
+  return client
 }
