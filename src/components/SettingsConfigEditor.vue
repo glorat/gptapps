@@ -46,6 +46,19 @@
       </q-card-section>
     </q-card>
 
+    <q-card>
+      <q-card-section>
+        "Unstructured" server for document extraction
+      </q-card-section>
+      <q-card-section>
+        <q-input
+          v-model="settings.unstructuredSettings.endpoint"
+          label="Endpoint"
+          filled
+        ></q-input>
+      </q-card-section>
+    </q-card>
+
     <q-btn
       label="Save Settings"
       color="primary"
@@ -68,12 +81,14 @@ import {ref, onMounted} from 'vue'
 import {createEmbedding} from 'src/lib/ai/openaiFacade'
 import {Dialog, Notify, useQuasar} from 'quasar'
 import {applyAiUserSettings, Config, getOpenAIAPI, getSettingsFromLocalStorage} from 'src/lib/ai/config'
-import {matRefresh, matSave, matShare} from "@quasar/extras/material-icons";
+import {matRefresh, matSave, matShare} from '@quasar/extras/material-icons';
+import {merge} from 'lodash';
 
 const settings = ref({
   server: 'openai',
   azureSettings: {apiKey: '', basePath: ''},
-  openaiSettings: {apiKey: ''}
+  openaiSettings: {apiKey: ''},
+  unstructuredSettings: {apiKey: '', endpoint: '/api/unstructured'}
 })
 
 const isSavingSettings = ref(false)
@@ -94,8 +109,9 @@ async function saveSettings() {
     isSavingSettings.value = true
     applyAiUserSettings(settings.value)
     // TODO: When hosted works, replace this with API call but without retries
+    debugger
     const res = await getOpenAIAPI(Config.embedModel).createEmbedding({input: 'test', model: Config.embedModel})
-    console.log(res)
+
     localStorage.setItem('aiUserSettings', JSON.stringify(settings.value))
     Notify.create({type: 'positive', message: 'Settings applied successfully'})
   } catch (e) {

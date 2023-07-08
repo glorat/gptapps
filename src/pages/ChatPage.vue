@@ -21,7 +21,7 @@
 import {computed, ComputedRef, reactive, ref} from 'vue'
 import ChatComponent from 'components/ChatComponent.vue'
 import ChatGPTClient from 'src/lib/ai/ChatGPTClient'
-import {getOpenAIAPI, OpenAIParams} from 'src/lib/ai/config'
+import {getOpenAIAPI} from 'src/lib/ai/config'
 import {v4, v4 as uuidv4} from 'uuid'
 import {matMic, matVolumeOff, matVolumeUp} from '@quasar/extras/material-icons'
 import {sendChatMessage} from 'src/lib/ai/openaiFacade'

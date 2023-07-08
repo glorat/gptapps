@@ -2,9 +2,11 @@ import {chunkDocument} from './chunkDocument'
 import {range} from 'lodash'
 import {encode} from 'gpt-tokenizer'
 import {createEmbedding} from 'src/lib/ai/openaiFacade'
-import {Config, OpenAIParams} from 'src/lib/ai/config';
+import {getLangchainConfig} from 'src/lib/ai/config'
 import {OpenAIEmbeddings} from 'langchain/embeddings/openai';
 import {MemoryVectorStore} from 'langchain/vectorstores/memory';
+import {OpenAIEmbeddingsWithMemo} from 'src/lib/ai/EmbeddingsWithCache'
+import {embedsCache} from 'src/lib/ai/openaiWrapper'
 
 export interface EmbedsData { lengths: number[]; keys: string[]; tokens: number[]; embeds: number[][] }
 
@@ -17,15 +19,9 @@ export interface QnaStorage {
 
 export async function createVectorStoreFromLargeContent(content: string, progress?: (p:number)=>void){
   const docChunks = await chunkDocument(content)
-  const cfg = OpenAIParams
   OpenAIEmbeddings.length
 
-  const embeddings = (cfg.basePath) ? new OpenAIEmbeddings({
-    azureOpenAIApiKey: cfg.apiKey as string,
-    azureOpenAIApiInstanceName: 'kevin-test-openai-1',
-    azureOpenAIApiDeploymentName: Config.embedModel,
-    azureOpenAIApiVersion: '2023-03-15-preview'
-  })  : new OpenAIEmbeddings({openAIApiKey: cfg.apiKey as string})
+  const embeddings = new OpenAIEmbeddingsWithMemo(getLangchainConfig(), undefined, embedsCache)
 
   const vectorStore = new MemoryVectorStore(embeddings)
   const embeds = []
@@ -69,7 +65,7 @@ export async function createQnaStorageFromLargeContent(content: string, progress
     readEmbeds: async () => {
       return {embeds, keys, tokens, lengths} as EmbedsData
     },
-    writeEmbeds: async (embeds: any) => {
+    writeEmbeds: async () => {
       throw new Error('Cannot write embeds in-memory')
     },
   }

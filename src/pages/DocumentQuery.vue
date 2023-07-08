@@ -10,6 +10,16 @@
           autogrow
           label="Content to query - paste here"
         />
+        <q-file
+          v-model="file"
+          label="Drop CSV here or click to upload"
+          filled
+          @update:model-value="onFileUpload"
+        >
+          <template v-slot:before>
+            <q-icon :name="matCloudUpload" />
+          </template>
+        </q-file>
       </div>
       <div class="col">
         <div>
@@ -48,10 +58,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, onMounted } from 'vue'
-import {performQna, performQna2} from 'src/lib/ai/answer'
-import {createQnaStorageFromLargeContent, createVectorStoreFromLargeContent} from 'src/lib/ai/largeDocQna'
+import {ref, nextTick, onMounted, Ref} from 'vue'
+import {performQna2} from 'src/lib/ai/answer'
+import {createVectorStoreFromLargeContent} from 'src/lib/ai/largeDocQna'
 import {exportFile, Notify} from 'quasar'
+import {matCloudUpload} from '@quasar/extras/material-icons'
+import axios from 'axios'
 
 const text = ref('')
 const questions = ref([] as string[])
@@ -146,5 +158,37 @@ function generateCSV() {
 
   // Download the CSV file using Quasar's exportFile method
   exportFile('questions_answers.csv', csvContent, 'text/csv')
+}
+
+const file: Ref<File|undefined> = ref(undefined)
+async function onFileUpload() {
+  const url = 'https://unstructured-api-plgktvor2a-as.a.run.app/general/v0/general';
+
+  const formData = new FormData();
+  if (file.value) {
+    formData.append('files', file.value, file.value.name);
+  }
+
+  try {
+    const response = await axios.post(url, formData, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    const elems = response.data.filter((el:any) => typeof el?.text === 'string')
+    if (!Array.isArray(elems)) {
+      throw new Error(
+        `Expected partitioning request to return an array, but got ${elems}`
+      );
+    }
+    const texts:string[] = elems.map(x => x.text)
+    text.value = texts.join('')
+    // console.log(response.data);
+    // debugger
+  } catch (error) {
+    console.error(error);
+  }
 }
 </script>
