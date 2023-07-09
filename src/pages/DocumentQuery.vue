@@ -64,6 +64,7 @@ import {createVectorStoreFromLargeContent} from 'src/lib/ai/largeDocQna'
 import {exportFile, Notify} from 'quasar'
 import {matCloudUpload} from '@quasar/extras/material-icons'
 import axios from 'axios'
+import {fileToPartitions, fileToText} from 'src/lib/ai/unstructured'
 
 const text = ref('')
 const questions = ref([] as string[])
@@ -162,29 +163,10 @@ function generateCSV() {
 
 const file: Ref<File|undefined> = ref(undefined)
 async function onFileUpload() {
-  const url = 'https://unstructured-api-plgktvor2a-as.a.run.app/general/v0/general';
-
-  const formData = new FormData();
-  if (file.value) {
-    formData.append('files', file.value, file.value.name);
-  }
-
   try {
-    const response = await axios.post(url, formData, {
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-
-    const elems = response.data.filter((el:any) => typeof el?.text === 'string')
-    if (!Array.isArray(elems)) {
-      throw new Error(
-        `Expected partitioning request to return an array, but got ${elems}`
-      );
+    if (file.value) {
+      text.value = await fileToText(file.value)
     }
-    const texts:string[] = elems.map(x => x.text)
-    text.value = texts.join('')
     // console.log(response.data);
     // debugger
   } catch (error) {
