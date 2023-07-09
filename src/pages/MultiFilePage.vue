@@ -1,14 +1,88 @@
 <template>
-  <multi-file-manager></multi-file-manager>
+  <multi-file-manager :loading="busy"></multi-file-manager>
+  <question-inputs :loading="busy"></question-inputs>
+  <q-btn label="Answer me" color="primary" @click="doit" :disable="busy"></q-btn>
+  <q-linear-progress v-if="progress" :value="progress"></q-linear-progress>
+
 </template>
 
-<script>
-import MultiFileManager from 'components/MultiFileManager.vue';
+<script lang="ts" setup>
+import MultiFileManager from 'components/MultiFileManager.vue'
+import QuestionInputs from 'components/QuestionInputs.vue'
+import {computed, ref} from 'vue'
+import {performQna2} from 'src/lib/ai/answer'
+import {exportFile, Notify} from 'quasar'
+import {useQuestionStore} from 'stores/questionStore'
+import {useMultiFileStore} from 'stores/multiFileStore'
 
-export default {
-  name: 'MultiFilePage',
-  components: {MultiFileManager}
+const busy = computed(() => loading.value || multiFileStore.processing)
+const loading = ref(false)
+const questionStore = useQuestionStore()
+const multiFileStore = useMultiFileStore()
+const progress = ref(0)
+
+async function doit() {
+  try {
+    loading.value = true
+    const answers: string[][] = []
+
+    let idx = 0
+    let count = 0
+    const total = questionStore.questions.length * multiFileStore.documentInfo.length
+    for (const question of questionStore.questions) {
+      answers[idx] = Array(questionStore.questions.length).fill('')
+      for (const [fileIdx, file] of multiFileStore.documentInfo.entries()) {
+        console.log(`QUESTION ${idx}: ${question}`)
+        const vectorStore = file.vectors!
+        const response = await performQna2(question, vectorStore)
+        answers[idx][fileIdx] = response ?? 'cannot answer'
+        console.log(`ANSWER ${idx}: ${response}`)
+        console.log()
+        count += 1
+        progress.value = (count / total )
+
+      }
+      idx++
+    }
+    generateCSV(answers)
+  } catch (e) {
+    Notify.create({message: e?.toString() ?? 'Unknown error'})
+  } finally {
+    loading.value = false
+  }
 }
+
+
+function escapeCSVValue(value: string): string {
+  // Escape double quotes by doubling them
+  const escapedValue = value.replace(/"/g, '""')
+
+  // Enclose the value in double quotes if it contains a comma or a double quote
+  if (value.includes(',') || value.includes('"')) {
+    return `"${escapedValue}"`
+  }
+
+  return escapedValue
+}
+
+function generateCSV(answers:string[][]) {
+  const csvRows = [
+    ['id', 'question', ...multiFileStore.documentInfo.map(x=>x.file.name)], // header row
+  ]
+
+  questionStore.questions.forEach((question, index) => {
+    const id = index + 1 // generate a unique id for each question
+    const answer = answers[index].map(escapeCSVValue)
+    const escapedQuestion = escapeCSVValue(question)
+    csvRows.push([id.toString(), escapedQuestion, ...answer])
+  })
+
+  const csvContent = csvRows.map(row => row.join(',')).join('\n')
+
+  // Download the CSV file using Quasar's exportFile method
+  exportFile('multi_questions_answers.csv', csvContent, 'text/csv')
+}
+
 
 </script>
 
