@@ -86,7 +86,7 @@ const settings = ref({
   server: 'openai',
   azureSettings: {apiKey: '', basePath: ''},
   openaiSettings: {apiKey: ''},
-  unstructuredSettings: {apiKey: '', endpoint: '/api/unstructured'}
+  unstructuredSettings: {apiKey: '', endpoint: ''}
 })
 
 const isSavingSettings = ref(false)
