@@ -8,6 +8,13 @@
     ],
     "rewrites": [
       {
+        "source": "/general/**",
+        "run": {
+          "serviceId": "unstructured-api",
+          "region": "asia-southeast1"
+        }
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

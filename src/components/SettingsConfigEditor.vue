@@ -78,11 +78,9 @@
 
 <script setup>
 import {ref, onMounted} from 'vue'
-import {createEmbedding} from 'src/lib/ai/openaiFacade'
-import {Dialog, Notify, useQuasar} from 'quasar'
+import {Dialog, Notify} from 'quasar'
 import {applyAiUserSettings, Config, getOpenAIAPI, getSettingsFromLocalStorage} from 'src/lib/ai/config'
 import {matRefresh, matSave, matShare} from '@quasar/extras/material-icons';
-import {merge} from 'lodash';
 
 const settings = ref({
   server: 'openai',
@@ -109,7 +107,6 @@ async function saveSettings() {
     isSavingSettings.value = true
     applyAiUserSettings(settings.value)
     // TODO: When hosted works, replace this with API call but without retries
-    debugger
     const res = await getOpenAIAPI(Config.embedModel).createEmbedding({input: 'test', model: Config.embedModel})
 
     localStorage.setItem('aiUserSettings', JSON.stringify(settings.value))
