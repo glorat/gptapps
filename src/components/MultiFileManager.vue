@@ -3,29 +3,40 @@
     <q-file
       v-model="files"
       multiple
+      filled
+      color="teal"
       @update:model-value="onFileChange"
       drag-and-drop
+      :loading="loading"
+      label="Drag and drop multiple files to question here"
     >
-      <div class="text-center">
-        <p>Drag and drop files here</p>
-      </div>
+      <template v-slot:prepend>
+        <q-icon :icon="matCloudUpload" />
+      </template>
     </q-file>
 
     <q-table
+      v-if="uploadedFiles.length>0"
       :loading="processingDocuments"
       :rows="uploadedFiles"
       row-key="file.name"
       :columns="columns"
       row-class="row-styling"
+      no-data-label="No files uploaded yet"
     ></q-table>
   </div>
 </template>
 
 <script setup lang="ts">
-import {computed, ref} from 'vue'
+import {computed, markRaw, ref} from 'vue'
 import {createVectorStoreFromLargeContent} from 'src/lib/ai/largeDocQna'
 import {fileToText} from 'src/lib/ai/unstructured'
 import {DocumentInfo, useMultiFileStore} from 'stores/multiFileStore'
+import {matCloudUpload} from '@quasar/extras/material-icons'
+
+defineProps({
+  loading:Boolean
+})
 
 const files = ref<File[]>([]);
 const multiFileStore = useMultiFileStore()
@@ -56,7 +67,7 @@ const columns = [
   {
     name: 'Status',
     align: 'left',
-    field: (row: DocumentInfo) => row.status === 'processing' ? row.progress??0.0 : row.status,
+    field: (row: DocumentInfo) => row.status === 'processing' ? (100*(row.progress??0.0)).toFixed(0) + "%" : row.status,
     label: 'Status',
     sortable: true,
   },
@@ -100,7 +111,8 @@ const processNextDocument = async () => {
       const text = await fileToText(pendingDocument.file)
       pendingDocument.status = 'processing'
       const vectorStore = await createVectorStoreFromLargeContent(text, (p)=>{pendingDocument.progress=p})
-      pendingDocument.vectors = vectorStore
+      // Important to markRaw to avoid proxying the insides
+      pendingDocument.vectors = markRaw(vectorStore)
       // Update the status to 'ready' on successful processing
       pendingDocument.status = 'ready';
     } catch (error) {

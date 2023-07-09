@@ -16,7 +16,7 @@ export type MemoCache<T> = {
   has: (key:string) => boolean
 }
 
-export const embedsCache:MemoCache<number[]> = new LRUCache<string, number[]>({max: 3000})
+export const embedsCache = new LRUCache<string, number[]>({max: 3000})
 
 type KeySerializer = (arg: any) => string;
 
@@ -30,7 +30,7 @@ function memoizeFunction<T extends NonNullable<unknown>>(
   return async (...args: any[]): Promise<T> => {
     const cacheKey = keySerializer(args);
 
-    if (cache.has(cacheKey)) {
+    if (!!cache.get(cacheKey)) {
       return cache.get(cacheKey)!;
     }
 
