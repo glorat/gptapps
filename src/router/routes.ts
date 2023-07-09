@@ -1,7 +1,7 @@
 import { RouteRecordRaw } from 'vue-router';
 import {
   matAudiotrack,
-  matChat,
+  matChat, matContentCopy,
   matHome,
   matImage,
   matPerson,
@@ -13,7 +13,7 @@ export const aiTools: (RouteRecordRaw & {description:string})[] = [
   { path: '/chat', name: 'chat', component: () => import('pages/ChatPage.vue'), meta: {title:'Chat', icon:matChat},
     description: 'ChatGPT'
   },
-  { path: '/qdoc', name: 'docq', component: () => import('pages/DocumentQuery.vue'),
+  { path: '/qdoc', name: 'qdoc', component: () => import('pages/DocumentQuery.vue'),
     meta: {title:'Document Query', icon:matSource},
     description: 'Large document question and answer',
   },
@@ -22,6 +22,9 @@ export const aiTools: (RouteRecordRaw & {description:string})[] = [
   },
   { path: '/audio', name: 'audio', component: () => import('pages/AudioPage.vue'), meta: {title:'Audio', icon:matVolumeUp},
   description:'(WIP) Audio transcriber'
+  },
+  { path: '/multifile', name: 'multifile', component: () => import('pages/MultiFilePage.vue'), meta: {title:'Multi-File', icon:matContentCopy},
+    description:'(WIP) Multifile analysis'
   },
 ]
 

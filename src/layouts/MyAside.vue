@@ -22,11 +22,12 @@
 
 <script lang="ts" setup>
 
-import routes from 'src/router/routes';
+import routes, {aiTools} from 'src/router/routes'
 import { version } from '../../package.json'
 
 const navBar = [
-  ['', 'chat', 'qdoc', 'audio', 'dalle'],
+  [''],
+  aiTools.map(x => x.name),
   ['settings', 'login']
 ];
 

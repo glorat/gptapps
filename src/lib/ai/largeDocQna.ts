@@ -17,7 +17,7 @@ export interface QnaStorage {
   writeEmbeds: (embeds: any) => Promise<void>
 }
 
-export async function createVectorStoreFromLargeContent(content: string, progress?: (p:number)=>void){
+export async function createVectorStoreFromLargeContent(content: string, progress?: (p:number)=>void): Promise<MemoryVectorStore> {
   const docChunks = await chunkDocument(content)
   OpenAIEmbeddings.length
 
@@ -31,6 +31,7 @@ export async function createVectorStoreFromLargeContent(content: string, progres
     const result = await embeddings.embedQuery(chunk);
     embeds.push(result);
   }
+  if (progress) progress(1.0)
   await vectorStore.addVectors(embeds, docChunks)
   //MemoryVectorStore.fromDocuments(docChunks, embeddings)
   return vectorStore
