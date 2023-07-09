@@ -124,3 +124,8 @@ export function getChatGPTClient(cache:any) {
   const client = new ChatGPTClient(getOpenAIParams().apiKey, clientOptions, cache)
   return client
 }
+
+export function getUnstructuredEndpoint() {
+  const endpoint = aiUserSettings?.unstructuredSettings?.endpoint ?? ''
+  return `${endpoint}/general/v0/general`
+}

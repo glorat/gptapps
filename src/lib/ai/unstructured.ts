@@ -1,4 +1,5 @@
 import axios from 'axios'
+import {getUnstructuredEndpoint} from 'src/lib/ai/config'
 
 export interface UnstructuredMetadata {
   filetype: string
@@ -24,7 +25,7 @@ export async function fileToText(file:File) {
 }
 
 export async function fileToPartitions(file:File):Promise<Partial<UnstructuredElement>[]> {
-  const url = 'https://unstructured-api-plgktvor2a-as.a.run.app/general/v0/general';
+  const url = getUnstructuredEndpoint()
 
   const formData = new FormData();
   formData.append('files', file, file.name);
