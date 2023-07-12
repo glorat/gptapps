@@ -81,6 +81,7 @@ import {ref, onMounted} from 'vue'
 import {Dialog, Notify} from 'quasar'
 import {applyAiUserSettings, Config, getOpenAIAPI, getSettingsFromLocalStorage} from 'src/lib/ai/config'
 import {matRefresh, matSave, matShare} from '@quasar/extras/material-icons';
+import {merge} from "lodash";
 
 const settings = ref({
   server: 'openai',
@@ -98,7 +99,7 @@ onMounted(() => {
 function loadSettingsFromLocalStorage() {
   const savedSettings = getSettingsFromLocalStorage()
   if (savedSettings) {
-    settings.value = savedSettings
+    settings.value = merge(settings.value, savedSettings)
   }
 }
 

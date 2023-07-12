@@ -33,8 +33,8 @@ async function doit() {
       answers[idx] = Array(questionStore.questions.length).fill('')
       for (const [fileIdx, file] of multiFileStore.documentInfo.entries()) {
         console.log(`QUESTION ${idx}: ${question}`)
-        const vectorStore = file.vectors!
-        const response = await performQna2(question, vectorStore)
+        const vectorStore = useMultiFileStore().vectorStore
+        const response = await performQna2(question, vectorStore, d=>d.metadata['name'] === file.file.name)
         answers[idx][fileIdx] = response ?? 'cannot answer'
         console.log(`ANSWER ${idx}: ${response}`)
         console.log()

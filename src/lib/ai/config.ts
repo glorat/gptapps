@@ -1,5 +1,5 @@
 import {Configuration, ConfigurationParameters, OpenAIApi} from 'openai'
-
+import {OpenAI, OpenAIChat} from 'langchain/llms/openai'
 import FormData from 'form-data'
 import ChatGPTClient from 'src/lib/ai/ChatGPTClient'
 
@@ -60,8 +60,9 @@ export function getLangchainConfig() {
     return {
       azureOpenAIApiKey: aiUserSettings.azureSettings?.apiKey,
       azureOpenAIApiInstanceName: 'kevin-test-openai-1', // FIXME: configurable
-      azureOpenAIApiDeploymentName: Config.embedModel,
-      azureOpenAIApiVersion: '2023-03-15-preview'
+      azureOpenAIApiVersion: '2023-03-15-preview',
+      azureOpenAIApiDeploymentName: Config.chatModel.replaceAll(/\./g,''),
+      azureOpenAIApiEmbeddingsDeploymentName: Config.embedModel.replaceAll(/\./g,''),
     }
   } else {
     throw new Error('unsupported')
@@ -128,4 +129,8 @@ export function getChatGPTClient(cache:any) {
 export function getUnstructuredEndpoint() {
   const endpoint = aiUserSettings?.unstructuredSettings?.endpoint ?? ''
   return `${endpoint}/general/v0/general`
+}
+
+export function getOpenAIChat() {
+  return new OpenAIChat(getLangchainConfig())
 }

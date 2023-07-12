@@ -33,6 +33,7 @@ import {createVectorStoreFromLargeContent} from 'src/lib/ai/largeDocQna'
 import {fileToText} from 'src/lib/ai/unstructured'
 import {DocumentInfo, useMultiFileStore} from 'stores/multiFileStore'
 import {matCloudUpload} from '@quasar/extras/material-icons'
+import {RecursiveCharacterTextSplitter} from "langchain/text_splitter";
 
 defineProps({
   loading:Boolean
@@ -110,9 +111,18 @@ const processNextDocument = async () => {
       await new Promise(resolve => setTimeout(resolve, 2000));
       const text = await fileToText(pendingDocument.file)
       pendingDocument.status = 'processing'
-      const vectorStore = await createVectorStoreFromLargeContent(text, (p)=>{pendingDocument.progress=p})
+
+      const textSplitter = new RecursiveCharacterTextSplitter({ chunkSize: 1000 });
+
+      // This is slow... need progress callback but awaiting https://github.com/hwchase17/langchainjs/issues/1861
+      const docs = await textSplitter.createDocuments([text], [{name: pendingDocument.file.name}])
+      // This is the old way which supports progress tracking
+      // const vectorStore = await createVectorStoreFromLargeContent(text, (p)=>{pendingDocument.progress=p})
+      const vectorStore = multiFileStore.vectorStore
+      await vectorStore.addDocuments(docs) // TODO: deduplicate based on metadata?
+
       // Important to markRaw to avoid proxying the insides
-      pendingDocument.vectors = markRaw(vectorStore)
+      // pendingDocument.vectors = markRaw(vectorStore)
       // Update the status to 'ready' on successful processing
       pendingDocument.status = 'ready';
     } catch (error) {
