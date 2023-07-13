@@ -113,9 +113,10 @@ const processNextDocument = async () => {
       pendingDocument.status = 'processing'
 
       const textSplitter = new RecursiveCharacterTextSplitter({ chunkSize: 1000 });
+
+      // This is slow... need progress callback but awaiting https://github.com/hwchase17/langchainjs/issues/1861
       const docs = await textSplitter.createDocuments([text], [{name: pendingDocument.file.name}])
-
-
+      // This is the old way which supports progress tracking
       // const vectorStore = await createVectorStoreFromLargeContent(text, (p)=>{pendingDocument.progress=p})
       const vectorStore = multiFileStore.vectorStore
       await vectorStore.addDocuments(docs) // TODO: deduplicate based on metadata?
