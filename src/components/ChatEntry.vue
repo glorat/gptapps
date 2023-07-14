@@ -1,5 +1,6 @@
 <template>
   <q-toolbar class="bg-grey-3 text-black row">
+    <q-btn @click="onReset" flat class="q-ml-sm" icon="refresh" color="primary"/>
     <q-input rounded outlined dense class="WAL__field q-mr-sm" bg-color="white"
              :model-value="modelValue"
              @update:model-value="onModelValueUpdate"
@@ -17,13 +18,17 @@ import {matVolumeOff, matVolumeUp} from '@quasar/extras/material-icons';
 import AudioTranscriber from 'components/AudioTranscriber.vue';
 
 const isVolumeOn = ref(true);
-const emit = defineEmits(['message', 'update:modelValue']);
+const emit = defineEmits(['message', 'update:modelValue', 'reset']);
 
-const props = defineProps({
+defineProps({
   modelValue: {
     type: String,
   },
 });
+
+const onReset = () => {
+  emit('reset')
+}
 
 const sendMessage = async () => {
   emit('message');

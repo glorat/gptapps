@@ -127,7 +127,7 @@ export function getChatGPTClient(cache:any) {
 }
 
 export function getUnstructuredEndpoint() {
-  const endpoint = aiUserSettings?.unstructuredSettings?.endpoint ?? ''
+  const endpoint = aiUserSettings?.unstructuredSettings?.endpoint ?? process.env.UNSTRUCTURED_URL
   return `${endpoint}/general/v0/general`
 }
 
