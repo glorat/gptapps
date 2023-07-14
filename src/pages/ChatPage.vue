@@ -4,28 +4,17 @@
     <div style="background-color: white; height: 50px"></div>
   </q-page>
   <q-page-sticky position="bottom">
-    <q-toolbar class="bg-grey-3 text-black row">
-      <q-input rounded outlined dense class="WAL__field q-mr-sm" bg-color="white"
-               v-model="newMessage"
-               @keydown.enter="sendMessage"
-               placeholder="Type your message"/>
-      <audio-transcriber @message="onAudioMessage"></audio-transcriber>
-      <q-btn disable round flat :icon="true ? matVolumeUp : matVolumeOff"/>
-      <q-btn @click="sendMessage" flat class="q-ml-sm" icon="send" color="primary"/>
-    </q-toolbar>
+    <chat-entry v-model="newMessage" @message="sendMessage"></chat-entry>
   </q-page-sticky>
 </template>
 
 <script setup lang="ts">
 
-import {computed, ComputedRef, reactive, ref} from 'vue'
+import {computed, reactive, ref} from 'vue'
 import ChatComponent from 'components/ChatComponent.vue'
-import ChatGPTClient from 'src/lib/ai/ChatGPTClient'
-import {getOpenAIAPI} from 'src/lib/ai/config'
 import {v4, v4 as uuidv4} from 'uuid'
-import {matMic, matVolumeOff, matVolumeUp} from '@quasar/extras/material-icons'
 import {sendChatMessage} from 'src/lib/ai/openaiFacade'
-import AudioTranscriber from 'components/AudioTranscriber.vue'
+import ChatEntry from 'components/ChatEntry.vue';
 
 const cache = reactive({})
 const getCache = async(id:string):Promise<any> => cache[id]
@@ -86,10 +75,6 @@ const sendMessage = async () => {
     progressChunks.length = 0
     newMessage.value = ''
   }
-}
-
-const onAudioMessage = (msg:string) => {
-  newMessage.value = msg
 }
 
 </script>
