@@ -5,15 +5,7 @@
     <div style="background-color: white; height: 50px"></div>
   </q-page>
   <q-page-sticky position="bottom">
-    <q-toolbar class="bg-grey-3 text-black row">
-      <q-input rounded outlined dense class="WAL__field q-mr-sm" bg-color="white"
-               v-model="newMessage"
-               @keydown.enter="sendMessage"
-               placeholder="Type your message"/>
-      <audio-transcriber @message="onAudioMessage"></audio-transcriber>
-      <q-btn disable round flat :icon="true ? matVolumeUp : matVolumeOff"/>
-      <q-btn @click="sendMessage" flat class="q-ml-sm" icon="send" color="primary"/>
-    </q-toolbar>
+    <chat-entry v-model="newMessage" @message="sendMessage"></chat-entry>
   </q-page-sticky>
 </template>
 
@@ -29,6 +21,7 @@ import {v4} from 'uuid';
 import MultiFileManager from 'components/MultiFileManager.vue';
 import ChatComponent from 'components/ChatComponent.vue';
 import AudioTranscriber from "components/AudioTranscriber.vue";
+import ChatEntry from "components/ChatEntry.vue";
 const busy = computed(() => loading.value || multiFileStore.processing)
 const loading = ref(false)
 const multiFileStore = useMultiFileStore()
@@ -65,9 +58,6 @@ const sendMessage = async () => {
 
     newMessage.value = ''
   }
-}
-const onAudioMessage = (msg:string) => {
-  newMessage.value = msg
 }
 
 
