@@ -4,7 +4,7 @@
     <div style="background-color: white; height: 50px"></div>
   </q-page>
   <q-page-sticky position="bottom">
-    <chat-entry v-model="newMessage" @message="sendMessage"></chat-entry>
+    <chat-entry v-model="newMessage" @message="sendMessage" @reset="onReset"></chat-entry>
   </q-page-sticky>
 </template>
 
@@ -75,6 +75,12 @@ const sendMessage = async () => {
     progressChunks.length = 0
     newMessage.value = ''
   }
+}
+
+const onReset = () => {
+  Object.keys(cache).forEach(key => {
+    delete cache[key]
+  })
 }
 
 </script>

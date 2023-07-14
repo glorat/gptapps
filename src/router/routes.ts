@@ -9,7 +9,7 @@ import {
   matSource, matVolumeUp
 } from '@quasar/extras/material-icons'
 
-export const aiTools: (RouteRecordRaw & {description:string})[] = [
+export const aiTools: (RouteRecordRaw & {description:string, name:string})[] = [
   { path: '/chat', name: 'chat', component: () => import('pages/ChatPage.vue'), meta: {title:'Chat', icon:matChat},
     description: 'ChatGPT'
   },

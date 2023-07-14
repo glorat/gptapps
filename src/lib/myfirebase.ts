@@ -1,36 +1,10 @@
 import {FirebaseApp, initializeApp} from 'firebase/app'
 import {getAuth, User} from 'firebase/auth'
-import {getAnalytics, isSupported as isAnalyticsSupported} from 'firebase/analytics'
-import {
-  addDoc,
-  collection,
-  connectFirestoreEmulator,
-  deleteDoc,
-  disableNetwork,
-  doc,
-  DocumentData,
-  getDoc,
-  getDocs,
-  getFirestore,
-  loadBundle,
-  query,
-  Query,
-  serverTimestamp,
-  setDoc,
-  updateDoc,
-  where
-} from 'firebase/firestore'
+import {isSupported as isAnalyticsSupported} from 'firebase/analytics'
+import {collection, connectFirestoreEmulator, disableNetwork, doc, getDoc, getFirestore} from 'firebase/firestore'
 
-
-const firebaseConfig = {
-  apiKey: 'AIzaSyDcvODUMsAmXA_gB4FIh0OvJ7yJ-OmoeoE',
-  authDomain: 'glorat-gptapps.firebaseapp.com',
-  projectId: 'glorat-gptapps',
-  storageBucket: 'glorat-gptapps.appspot.com',
-  messagingSenderId: '33744445712',
-  appId: '1:33744445712:web:c3fb41e230852510800595',
-  measurementId: 'G-4BXW5R3DR2'
-};
+import * as firebaseConfig from '../staticConfig.json'
+export const defaultUnstructuredUrl = `https://${firebaseConfig.projectId}.web.app`
 
 let app: FirebaseApp;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
