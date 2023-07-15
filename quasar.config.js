@@ -10,7 +10,17 @@
 
 
 const { configure } = require('quasar/wrappers');
+const {defaultUnstructuredUrl} = require(__dirname + '/src/staticConfig');
+const {reduce} = require("lodash");
 
+const pathsToProxy = ['/general']; // unstructured endpoint
+const proxyTarget = defaultUnstructuredUrl
+
+const proxyProxyConfig = reduce(
+  pathsToProxy,
+  (obj, path) => ({ ...obj, [path]: { target: proxyTarget, changeOrigin:true, secure:false } }),
+  {}
+);
 
 module.exports = configure(function (/* ctx */) {
   return {
@@ -88,7 +98,8 @@ module.exports = configure(function (/* ctx */) {
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
     devServer: {
       // https: true
-      open: true // opens browser window automatically
+      open: false, // opens browser window automatically
+      proxy: proxyProxyConfig
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework

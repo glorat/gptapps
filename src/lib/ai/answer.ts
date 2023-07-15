@@ -4,10 +4,11 @@ import {logger} from './logger'
 import {QnaStorage} from 'src/lib/ai/largeDocQna'
 import {answerMe, createEmbedding} from 'src/lib/ai/openaiFacade'
 import {VectorStore} from 'langchain/vectorstores';
+import {MemoryVectorStore} from "langchain/vectorstores/memory";
 
 
-export async function performQna2(question:string, db: VectorStore, prompt?: string): Promise<string|undefined> {
-  const similarities = await db.similaritySearch(question, 10)
+export async function performQna2(question:string, db: VectorStore, filter:(d:any)=>boolean = ()=>true, prompt?: string): Promise<string|undefined> {
+  const similarities = await db.similaritySearch(question, 10, filter)
 
   const contexts = []
   let contextLength = 0

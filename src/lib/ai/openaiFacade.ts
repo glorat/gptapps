@@ -9,6 +9,7 @@ import {
 } from 'src/lib/ai/openaiWrapper'
 import {CreateImageRequest, ImagesResponse} from 'openai'
 import {getOpenAIAPI} from 'src/lib/ai/config'
+import {performVectorStoreQnaDirect} from "src/lib/ai/langchainWrapper";
 
 const FUNCTIONS_REGION = 'asia-northeast1'
 

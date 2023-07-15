@@ -9,13 +9,17 @@ import {
   matSource, matVolumeUp
 } from '@quasar/extras/material-icons'
 
-export const aiTools: (RouteRecordRaw & {description:string})[] = [
+export const aiTools: (RouteRecordRaw & {description:string, name:string})[] = [
   { path: '/chat', name: 'chat', component: () => import('pages/ChatPage.vue'), meta: {title:'Chat', icon:matChat},
     description: 'ChatGPT'
   },
   { path: '/qdoc', name: 'qdoc', component: () => import('pages/DocumentQuery.vue'),
     meta: {title:'Document Query', icon:matSource},
     description: 'Large document question and answer',
+  },
+  { path: '/retrieveqna', name: 'retrieveqna', component: () => import('pages/RetrievalQnaPage.vue'),
+    meta: {title:'Retrieval QnA', icon:matSource},
+    description: 'Chat with your document library',
   },
   { path: '/dalle', name: 'dalle', component: () => import('pages/DallePage.vue'), meta: {title:'Dall-E', icon:matImage},
     description: 'DALL-E AI image generation'
