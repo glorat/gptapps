@@ -5,7 +5,7 @@
     <div style="background-color: white; height: 50px"></div>
   </q-page>
   <q-page-sticky position="bottom">
-    <chat-entry v-model="newMessage" @message="sendMessage"></chat-entry>
+    <chat-entry v-model="newMessage" @message="sendMessage" @reset="onReset"></chat-entry>
   </q-page-sticky>
 </template>
 
@@ -16,7 +16,7 @@ import {v4} from 'uuid';
 import MultiFileManager from 'components/MultiFileManager.vue';
 import ChatComponent from 'components/ChatComponent.vue';
 import ChatEntry from 'components/ChatEntry.vue';
-import {performVectorStoreQna} from 'src/lib/ai/openaiFacade';
+import {useQnaStore} from '../stores/qnaStore'
 
 const busy = computed(() => loading.value || multiFileStore.processing)
 const loading = ref(false)
@@ -32,13 +32,16 @@ const sendMessage = async () => {
     const msg = newMessage.value.trim()
 
     messages.push({id: v4(), message: msg, role: 'User'})
-    const res = await performVectorStoreQna( {question:msg} )
+    const res = await useQnaStore().performVectorStoreQna({question:msg})
     messages.push({id: v4(), message: res.text, role: 'Other'})
 
     newMessage.value = ''
   }
 }
 
+const onReset = () => {
+
+}
 
 </script>
 

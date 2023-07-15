@@ -46,7 +46,3 @@ export async function createImage(arg: {request:CreateImageRequest}): Promise<Im
 export async function sendChatMessage(arg:{message:string, clientOptions?:any, chatOptions?:any, cache: any}): Promise<ReturnType<typeof sendChatMessageDirect>> {
   return await doGeneric(arg, 'sendChatMessage', sendChatMessageDirect)
 }
-
-export async function performVectorStoreQna(arg:{question:string}): Promise<ReturnType<typeof performVectorStoreQnaDirect>> {
-  return await doGeneric(arg, 'performVectorStoreQnaDirect', performVectorStoreQnaDirect)
-}

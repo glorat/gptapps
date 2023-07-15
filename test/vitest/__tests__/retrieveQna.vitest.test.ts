@@ -6,6 +6,7 @@ import {useMultiFileStore} from 'stores/multiFileStore';
 import {createPinia, setActivePinia} from 'pinia';
 
 import {anyBufferToText} from 'src/lib/ai/unstructured';
+import {useQnaStore} from 'stores/qnaStore'
 
 describe('retrieveQna', () => {
   setActivePinia(createPinia())
@@ -37,7 +38,7 @@ describe('retrieveQna', () => {
 
   it('should answer from store', async () => {
     const msg = 'What is the answer to the ultimate question?'
-    const res = await performVectorStoreQna( {question:msg} )
+    const res = await useQnaStore().performVectorStoreQna( {question:msg} )
     expect (res.text).toContain('43')
   }, 20000)
 
