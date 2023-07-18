@@ -82,6 +82,18 @@
     "plugins": [
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/changelog",
+        {
+          "changelogFile": "public/md/CHANGELOG.md"
+        }
+      ],
+      [
+        "@semantic-release/git",
+        {
+          "assets": ["public/md/CHANGELOG.md"]
+        }
+      ],
       "@semantic-release/github"
     ]
   }
