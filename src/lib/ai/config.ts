@@ -22,7 +22,7 @@ class CustomFormData extends FormData {
 
 let aiUserSettings: Partial<AiUserSettings> = {
   server: 'openai',
-  openaiSettings: {apiKey: process.env.OPENAPI_KEY ?? ''},
+  openaiSettings: {apiKey: process.env.OPENAPI_KEY ?? process.env.OPENAI_API_KEY ?? ''},
   unstructuredSettings: {endpoint: process.env.UNSTRUCTURED_URL ?? ''},
 }
 
