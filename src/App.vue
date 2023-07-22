@@ -6,8 +6,10 @@
 import { onMounted } from 'vue'
 import { Notify } from 'quasar'
 import {applyAiUserSettings, getSettingsFromLocalStorage} from 'src/lib/ai/config'
+import {fbGetApp} from './lib/myfirebase'
 
 onMounted(async () => {
+  fbGetApp()
   getSettingsFromLocalStorage()
 
   const params = new URLSearchParams(window.location.search)

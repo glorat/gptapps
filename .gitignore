@@ -34,3 +34,5 @@ yarn-error.log*
 .firebase
 /coverage
 *.log
+.secret.local
+.env*

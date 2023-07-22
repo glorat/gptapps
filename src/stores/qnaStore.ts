@@ -20,11 +20,12 @@ export const useQnaStore = defineStore('qnaStore', {
   }),
   actions: {
     async performVectorStoreQna (args: {question:string}) {
-      const vs = useMultiFileStore().vectorStore
+      // FIXME: This won't work for remote
+      const retriever = useMultiFileStore().retriever
 
       const model = getOpenAIChat()
       const memory = this.memory
-      const chain = ConversationalRetrievalQAChain.fromLLM(model, vs.asRetriever(), {
+      const chain = ConversationalRetrievalQAChain.fromLLM(model, retriever, {
         returnSourceDocuments: true,
         memory,
         questionGeneratorChainOptions:{

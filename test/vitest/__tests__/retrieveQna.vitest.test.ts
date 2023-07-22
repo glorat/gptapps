@@ -2,11 +2,13 @@
 
 import {describe, it, expect} from 'vitest'
 import {performVectorStoreQna} from 'src/lib/ai/openaiFacade';
-import {useMultiFileStore} from 'stores/multiFileStore';
+import {useMultiFileStore, useMultiFileStoreBrowser} from 'stores/multiFileStore'
 import {createPinia, setActivePinia} from 'pinia';
 
 import {anyBufferToText} from 'src/lib/ai/unstructured';
 import {useQnaStore} from 'stores/qnaStore'
+import {MemoryVectorStore} from 'langchain/vectorstores/memory'
+import {Document} from 'langchain/document'
 
 describe('retrieveQna', () => {
   setActivePinia(createPinia())
@@ -31,9 +33,9 @@ describe('retrieveQna', () => {
   })
 
   it('should process documents', async() => {
-    expect(store.documentInfo[0].status).toEqual('pending')
+    expect(store.documentInfo[0].fileStatus).toEqual('pending')
     await store.processNextDocument()
-    expect(store.documentInfo[0].status).toEqual('ready')
+    expect(store.documentInfo[0].fileStatus).toEqual('ready')
   }, 20000)
 
   it('should answer from store', async () => {
@@ -41,5 +43,4 @@ describe('retrieveQna', () => {
     const res = await useQnaStore().performVectorStoreQna( {question:msg} )
     expect (res.text).toContain('43')
   }, 20000)
-
 })

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import {getUnstructuredEndpoint} from 'src/lib/ai/config'
+import {getUnstructuredEndpoint} from './config'
 
 // const FormData = require('form-data');
 export interface UnstructuredMetadata {

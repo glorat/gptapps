@@ -1,6 +1,8 @@
 import {FirebaseApp, initializeApp} from 'firebase/app'
-import {getAuth, User} from 'firebase/auth'
+import {getAuth, User, connectAuthEmulator} from 'firebase/auth'
 import {isSupported as isAnalyticsSupported} from 'firebase/analytics'
+import {connectFunctionsEmulator, getFunctions} from 'firebase/functions'
+import {connectStorageEmulator, getStorage} from 'firebase/storage'
 import {collection, connectFirestoreEmulator, disableNetwork, doc, getDoc, getFirestore} from 'firebase/firestore'
 
 import * as firebaseConfig from '../staticConfig.json'
@@ -11,7 +13,7 @@ let app: FirebaseApp;
 let currentUser: User|undefined = undefined;
 
 
-export let useEmulator = false
+export let useEmulator = true // FIXME
 export const useOfflineOnly = false
 
 // Overrides of this need to be done before first call to getApp
@@ -33,9 +35,10 @@ export function fbGetApp() {
     if (useEmulator) {
       console.error('Emulator in use')
       // These ports must match firebase.json
-      connectFirestoreEmulator(getFirestore(app), 'localhost', 8081)
-      // connectAuthEmulator(getAuth(app), 'http://localhost:9099');
-      // connectFunctionsEmulator(getFunctions(app, 'asia-northeast1'), 'localhost', 5001);
+      connectFirestoreEmulator(getFirestore(app), 'localhost', 8096)
+      connectAuthEmulator(getAuth(app), 'http://localhost:9099');
+      connectFunctionsEmulator(getFunctions(app, undefined /* FUNCTIONS_LOCATION*/ ), 'localhost', 5001);
+      connectStorageEmulator(getStorage(app), 'localhost', 9199)
     }
 
     if (useOfflineOnly && !process.env.SERVER) {

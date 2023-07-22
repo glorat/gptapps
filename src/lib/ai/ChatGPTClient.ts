@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
 /**
  * Taken from https://github.com/glorat/node-chatgpt-api/blob/main/src/ChatGPTClient.js
  * but with the following mods to make it browser friendly:
@@ -17,6 +20,23 @@ const CHATGPT_MODEL = 'gpt-3.5-turbo';
 const tokenizersCache = {};
 
 export default class ChatGPTClient {
+  private apiKey: any
+  private conversationsCache: { set: (key: string, value: any) => void; get: (key: string) => any }
+  private options: any
+  private modelOptions:any
+  private isChatGptModel: boolean
+  private isUnofficialChatGptModel: boolean
+  private maxContextTokens: number
+  private maxPromptTokens: number
+  private maxResponseTokens: number
+  private userLabel: any
+  private startToken: string
+  private gptEncoder: any
+  private chatGptLabel: any
+  private endToken: string
+  private completionsUrl: string
+
+
   constructor(
     apiKey,
     options = {},
@@ -86,11 +106,11 @@ export default class ChatGPTClient {
       // without tripping the stop sequences, so I'm using "||>" instead.
       this.startToken = '||>';
       this.endToken = '';
-      this.gptEncoder = this.constructor.getTokenizer('cl100k_base');
+      this.gptEncoder = ChatGPTClient.getTokenizer('cl100k_base');
     } else if (isUnofficialChatGptModel) {
       this.startToken = '<|im_start|>';
       this.endToken = '<|im_end|>';
-      this.gptEncoder = this.constructor.getTokenizer('text-davinci-003', true, {
+      this.gptEncoder = ChatGPTClient.getTokenizer('text-davinci-003', true, {
         '<|im_start|>': 100264,
         '<|im_end|>': 100265,
       });
@@ -101,9 +121,9 @@ export default class ChatGPTClient {
       this.startToken = '||>';
       this.endToken = '';
       try {
-        this.gptEncoder = this.constructor.getTokenizer(this.modelOptions.model, true);
+        this.gptEncoder = ChatGPTClient.getTokenizer(this.modelOptions.model, true);
       } catch {
-        this.gptEncoder = this.constructor.getTokenizer('text-davinci-003', true);
+        this.gptEncoder = ChatGPTClient.getTokenizer('text-davinci-003', true);
       }
     }
 
@@ -164,7 +184,7 @@ export default class ChatGPTClient {
       console.debug(modelOptions);
       console.debug();
     }
-    const opts = {
+    const opts:any = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -188,7 +208,7 @@ export default class ChatGPTClient {
 
     if (modelOptions.stream) {
       // eslint-disable-next-line no-async-promise-executor
-      return new Promise(async (resolve, reject) => {
+      return new Promise<void>(async (resolve, reject) => {
         try {
           let done = false;
           await fetchEventSource(url, {
@@ -261,7 +281,7 @@ export default class ChatGPTClient {
     );
     if (response.status !== 200) {
       const body = await response.text();
-      const error = new Error(`Failed to send message. HTTP ${response.status} - ${body}`);
+      const error:any = new Error(`Failed to send message. HTTP ${response.status} - ${body}`);
       error.status = response.status;
       try {
         error.json = JSON.parse(body);
@@ -304,7 +324,7 @@ ${botMessage.message}
 
   async sendMessage(
     message,
-    opts = {},
+    opts:any = {},
   ) {
     if (opts.clientOptions && typeof opts.clientOptions === 'object') {
       this.setOptions(opts.clientOptions);
@@ -407,7 +427,7 @@ ${botMessage.message}
     };
     conversation.messages.push(replyMessage);
 
-    const returnData = {
+    const returnData:any = {
       response: replyMessage.message,
       conversationId,
       parentMessageId: replyMessage.parentMessageId,
@@ -430,7 +450,7 @@ ${botMessage.message}
   }
 
   async buildPrompt(messages, parentMessageId, { isChatGptModel = false, promptPrefix = null }) {
-    const orderedMessages = this.constructor.getMessagesForConversation(messages, parentMessageId);
+    const orderedMessages = ChatGPTClient.getMessagesForConversation(messages, parentMessageId);
 
     promptPrefix = (promptPrefix || this.options.promptPrefix || '').trim();
     if (promptPrefix) {

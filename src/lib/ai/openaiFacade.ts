@@ -11,16 +11,14 @@ import {CreateImageRequest, ImagesResponse} from 'openai'
 import {getOpenAIAPI} from 'src/lib/ai/config'
 import {performVectorStoreQnaDirect} from "src/lib/ai/langchainWrapper";
 
-const FUNCTIONS_REGION = 'asia-northeast1'
+const FUNCTIONS_REGION = undefined // 'asia-northeast1'
 
 // The keyhole invoker to manage execution strategies
-async function doGeneric<ARG,RES>(args:ARG, functionName:string, fn: (args:ARG) => RES) {
-  const directCall = true
+export async function doGeneric<ARG,RES>(args:ARG, functionName:string, fn: (args:ARG) => RES, directCall = true) {
   if (!directCall) {
     const functions = getFunctions(fbGetApp(), FUNCTIONS_REGION)
-    // Call Firebase Cloud Function to validate video
-    const fn = httpsCallable(functions, functionName);
-    const res = await fn(args)
+    const fn = httpsCallable(functions, 'genCall');
+    const res = await fn({...args, function: functionName})
     return res.data as RES
   } else {
     return fn(args);

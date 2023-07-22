@@ -1,7 +1,7 @@
 import {Configuration, ConfigurationParameters, OpenAIApi} from 'openai'
 import {OpenAI, OpenAIChat} from 'langchain/llms/openai'
 import FormData from 'form-data'
-import ChatGPTClient from 'src/lib/ai/ChatGPTClient'
+import ChatGPTClient from './ChatGPTClient'
 import {defaultUnstructuredUrl} from '../myfirebase'
 
 type OpenAIEngine = 'text-ada-001' | 'text-davinci-003'
@@ -22,7 +22,7 @@ class CustomFormData extends FormData {
 
 let aiUserSettings: Partial<AiUserSettings> = {
   server: 'openai',
-  openaiSettings: {apiKey: process.env.OPENAPI_KEY ?? ''},
+  openaiSettings: {apiKey: process.env.OPENAPI_KEY ?? process.env.OPENAI_API_KEY ?? ''},
   unstructuredSettings: {endpoint: process.env.UNSTRUCTURED_URL ?? ''},
 }
 

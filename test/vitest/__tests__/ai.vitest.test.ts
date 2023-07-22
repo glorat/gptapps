@@ -2,6 +2,9 @@ import {describe, it, expect} from 'vitest'
 import {createQnaStorageFromLargeContent, createVectorStoreFromLargeContent} from 'src/lib/ai/largeDocQna'
 import {performQna, performQna2} from 'src/lib/ai/answer'
 import {embedsCache} from 'src/lib/ai/openaiWrapper'
+import {useMultiFileStoreBrowser} from 'stores/multiFileStore'
+import {Document} from 'langchain/document'
+import {MemoryVectorStore} from 'langchain/vectorstores/memory'
 
 const testContent = 'Let it be known that 2+2=5 and that 4+4=9'
 
@@ -28,4 +31,5 @@ describe('ai', () => {
     await createQnaStorageFromLargeContent(testContent)
     expect(embedsCache.size == 1)
   })
+
 })
