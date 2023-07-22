@@ -6,7 +6,6 @@ import {getStorage, ref as storageRef, uploadBytes} from 'firebase/storage'
 import {fbGetApp, fbGetLogin} from '../lib/myfirebase'
 import {collection, getFirestore, onSnapshot, query, Unsubscribe} from 'firebase/firestore'
 import {Document} from 'langchain/dist/document'
-import {BaseRetriever} from 'langchain/schema'
 import {doGeneric} from '../lib/ai/openaiFacade'
 
 export const useMultiFileRemoteStore = defineStore('multiFileRemote', {
@@ -16,16 +15,16 @@ export const useMultiFileRemoteStore = defineStore('multiFileRemote', {
   }),
   getters: {
     processing: (state):boolean => state.documentInfo.some(file => includes([ 'processing', 'parsing'], file.fileStatus)),
-    retriever: (state) => {
+  },
+  actions: {
+    getRetriever: () => {
       return {
         async getRelevantDocuments(query: string): Promise<Document[]> {
           const ret = await doGeneric( {query}, 'getRelevantDocuments', ()=>{throw new Error('not implemented')} ,false)
           return ret
         }
       }
-    }
-  },
-  actions: {
+    },
     async getRelevantDocuments(query: string): Promise<Document[]> {
       throw new Error('not implemeted')
     },

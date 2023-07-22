@@ -1,7 +1,7 @@
 import {defineStore} from 'pinia'
 import {MemoryVectorStore} from 'langchain/vectorstores/memory'
 import {includes} from 'lodash'
-import {markRaw, shallowRef} from 'vue'
+import {markRaw} from 'vue'
 import {OpenAIEmbeddingsWithMemo} from 'src/lib/ai/EmbeddingsWithCache';
 import {getLangchainConfig} from 'src/lib/ai/config';
 import {embedsCache} from 'src/lib/ai/openaiWrapper';
@@ -38,9 +38,12 @@ export const useMultiFileStoreBrowser = defineStore('multiFile', {
   }),
   getters: {
     processing: (state):boolean => state.documentInfo.some(file => includes([ 'processing', 'parsing'], file.fileStatus)),
-    retriever: (state) => state.vectorStore.asRetriever()
+
   },
   actions: {
+    getRetriever() {
+      return this.vectorStore.asRetriever()
+    },
     async subscribe() {
       // Nothing. we are in memory
     },

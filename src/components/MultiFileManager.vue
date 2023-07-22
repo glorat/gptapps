@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, markRaw, onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {DocumentInfo, useMultiFileStore} from 'stores/multiFileStore'
 import {matCloudUpload} from '@quasar/extras/material-icons'
 import {notify} from '../lib/notify'
@@ -59,7 +59,7 @@ const columns = [
   {
     name: 'Status',
     align: 'left',
-    field: (row: DocumentInfo) => row.fileStatus === 'processing' ? (100*(row.progress??0.0)).toFixed(0) + "%" : row.fileStatus,
+    field: (row: DocumentInfo) => row.fileStatus === 'processing' ? (100*(row.progress??0.0)).toFixed(0) + '%' : row.fileStatus,
     label: 'Status',
     sortable: true,
   },

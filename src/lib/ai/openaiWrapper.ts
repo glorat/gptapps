@@ -4,7 +4,7 @@
  * Function must be idempotent
  */
 import {CreateEmbeddingRequest} from 'openai'
-import {Config, getChatGPTClient, getOpenAIAPI, getOpenAIConfig} from 'src/lib/ai/config'
+import {Config, getChatGPTClient, getOpenAIAPI} from 'src/lib/ai/config'
 import {logger} from 'src/lib/ai/logger'
 import {callWithRetry} from 'src/lib/ai/callWithRetry'
 import {LRUCache} from 'lru-cache'

@@ -21,7 +21,7 @@ export const useQnaStore = defineStore('qnaStore', {
   actions: {
     async performVectorStoreQna (args: {question:string}) {
       // FIXME: This won't work for remote
-      const retriever = useMultiFileStore().retriever
+      const retriever = useMultiFileStore().getRetriever()
 
       const model = getOpenAIChat()
       const memory = this.memory

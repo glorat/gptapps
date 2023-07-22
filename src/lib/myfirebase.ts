@@ -13,7 +13,7 @@ let app: FirebaseApp;
 let currentUser: User|undefined = undefined;
 
 
-export let useEmulator = true // FIXME
+export let useEmulator = false
 export const useOfflineOnly = false
 
 // Overrides of this need to be done before first call to getApp
