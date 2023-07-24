@@ -70,6 +70,7 @@ const questionStore = useQuestionStore()
 
 // Load questions from localStorage on component mount
 onMounted(() => {
+  text.value = useMultiFileStoreBrowser().allText
   // const savedQuestions = localStorage?.getItem('questions')
   // if (savedQuestions) {
   //   questionStore.questions = JSON.parse(savedQuestions)

@@ -83,8 +83,9 @@ const handleDrop = async (event) => {
   isDraggingOver.value = false;
   isDraggingFiles.value = false;
   dragSourceCounter.value = 0; // Reset the drag source counter
-  await uploadFiles(event.dataTransfer?.files);
   Loading.hide()
+
+  await uploadFiles(event.dataTransfer?.files);
 };
 const handleDragOver = (event) => {
   event.preventDefault();

@@ -2,10 +2,10 @@ import {defineStore} from 'pinia'
 import {MemoryVectorStore} from 'langchain/vectorstores/memory'
 import {includes} from 'lodash'
 import {markRaw} from 'vue'
-import {OpenAIEmbeddingsWithMemo} from 'src/lib/ai/EmbeddingsWithCache';
-import {getLangchainConfig} from 'src/lib/ai/config';
-import {embedsCache} from 'src/lib/ai/openaiWrapper';
-import {anyBufferToText, fileToText} from 'src/lib/ai/unstructured';
+import {OpenAIEmbeddingsWithMemo} from '../lib/ai/EmbeddingsWithCache';
+import {getLangchainConfig} from '../lib/ai/config';
+import {embedsCache} from '../lib/ai/openaiWrapper';
+import {anyBufferToText, fileToText} from '../lib/ai/unstructured';
 import {RecursiveCharacterTextSplitter} from 'langchain/text_splitter';
 import {useMultiFileRemoteStore} from './multiFileRemoteStore'
 import {fbHasUser} from '../lib/myfirebase'
@@ -19,6 +19,7 @@ export interface DocumentInfo {
   buffer?: Buffer
   fileStatus: 'pending' | 'parsing' | 'processing' | 'ready' | 'error'
   progress?: number,
+  text?: string
   // vectors?: MemoryVectorStore
 }
 
@@ -44,7 +45,7 @@ export const useMultiFileStoreBrowser = defineStore('multiFile', {
   }),
   getters: {
     processing: (state):boolean => state.documentInfo.some(file => includes([ 'processing', 'parsing'], file.fileStatus)),
-    allText: (state)=> state.memoryVectors.map(v => v.content).join(' ')
+    allText: (state)=> state.documentInfo.map(d => d.text).join(' ')
   },
   actions: {
     getVectorStore() {
