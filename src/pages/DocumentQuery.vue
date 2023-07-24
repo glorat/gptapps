@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, nextTick, onMounted, Ref, computed} from 'vue'
+import {ref, nextTick, onMounted, Ref, computed, watch} from 'vue'
 import {performQna2} from 'src/lib/ai/answer'
 import {createVectorStoreFromLargeContent} from 'src/lib/ai/largeDocQna'
 import {exportFile, Notify} from 'quasar'
@@ -55,6 +55,7 @@ import axios from 'axios'
 import {fileToPartitions, fileToText} from 'src/lib/ai/unstructured'
 import {useQuestionStore} from 'stores/questionStore'
 import QuestionInputs from 'components/QuestionInputs.vue'
+import {useMultiFileStoreBrowser} from '../stores/multiFileStore'
 
 const text = ref('')
 const questions = computed(() => questionStore.questions)
@@ -73,6 +74,14 @@ onMounted(() => {
   // if (savedQuestions) {
   //   questionStore.questions = JSON.parse(savedQuestions)
   // }
+})
+
+const storeText = computed (() => {
+  return useMultiFileStoreBrowser().allText
+})
+
+watch(storeText, (txt) => {
+  text.value = txt
 })
 
 async function doit() {

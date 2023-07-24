@@ -1,10 +1,7 @@
-import {getOpenAIAPI} from './config'
-import {callWithRetry} from './callWithRetry'
 import {logger} from './logger'
 import {QnaStorage} from 'src/lib/ai/largeDocQna'
 import {answerMe, createEmbedding} from 'src/lib/ai/openaiFacade'
-import {VectorStore} from 'langchain/vectorstores';
-import {MemoryVectorStore} from "langchain/vectorstores/memory";
+import {VectorStore} from 'langchain/vectorstores'
 
 
 export async function performQna2(question:string, db: VectorStore, filter:(d:any)=>boolean = ()=>true, prompt?: string): Promise<string|undefined> {

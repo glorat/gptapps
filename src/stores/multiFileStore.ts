@@ -31,16 +31,27 @@ export const useMultiFileStore = () => {
   }
 }
 
+interface MemoryVector {
+  content: string;
+  embedding: number[];
+  metadata: Record<string, any>;
+}
 export const useMultiFileStoreBrowser = defineStore('multiFile', {
   state: () => ({
     documentInfo: [] as DocumentInfo[] ,
+    memoryVectors: [] as MemoryVector[],
     vectorStore: markRaw(new MemoryVectorStore(new OpenAIEmbeddingsWithMemo(getLangchainConfig(), undefined, embedsCache)))
   }),
   getters: {
     processing: (state):boolean => state.documentInfo.some(file => includes([ 'processing', 'parsing'], file.fileStatus)),
-
+    allText: (state)=> state.memoryVectors.map(v => v.content).join(' ')
   },
   actions: {
+    getVectorStore() {
+      const ret = new MemoryVectorStore(new OpenAIEmbeddingsWithMemo(getLangchainConfig(), undefined, embedsCache))
+      ret.memoryVectors = this.memoryVectors
+      return ret
+    },
     getRetriever() {
       return this.vectorStore.asRetriever()
     },
@@ -48,7 +59,8 @@ export const useMultiFileStoreBrowser = defineStore('multiFile', {
       // Nothing. we are in memory
     },
     async addFile(file:File) {
-      this.documentInfo.push({ fileName:file.name, file, fileStatus: 'pending', fileLastModified: file.lastModified, fileSize: file.size, progress: undefined});
+      const text = await file.text()
+      this.documentInfo.push({ fileName:file.name, file, text: text, fileStatus: 'pending', fileLastModified: file.lastModified, fileSize: file.size, progress: undefined});
       return `Uploaded ${file.name}!`
     },
     async addBuffer(buffer:any, name:string) {
@@ -77,11 +89,10 @@ export const useMultiFileStoreBrowser = defineStore('multiFile', {
           const docs = await textSplitter.createDocuments([text], [{name: pendingDocument.fileName}])
           // This is the old way which supports progress tracking
           // const vectorStore = await createVectorStoreFromLargeContent(text, (p)=>{pendingDocument.progress=p})
-          const vectorStore = this.vectorStore
+          const vectorStore = this.getVectorStore()
           await vectorStore.addDocuments(docs) // TODO: deduplicate based on metadata?
+          this.memoryVectors = vectorStore.memoryVectors // save it
 
-          // Important to markRaw to avoid proxying the insides
-          // pendingDocument.vectors = markRaw(vectorStore)
           // Update the status to 'ready' on successful processing
           pendingDocument.fileStatus = 'ready';
         } catch (error) {
