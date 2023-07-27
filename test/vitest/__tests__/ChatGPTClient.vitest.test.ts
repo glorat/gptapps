@@ -1,6 +1,6 @@
 import {describe, it, expect} from 'vitest'
 
-import ChatGPTClient from "src/lib/ai/ChatGPTClient";
+import ChatGPTClient from 'src/lib/ai/ChatGPTClient';
 import {sendChatMessage} from 'src/lib/ai/openaiFacade'
 
 const createCache = (cache:Record<string, any>) => {

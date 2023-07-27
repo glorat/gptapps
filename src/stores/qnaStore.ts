@@ -3,7 +3,11 @@ import {BufferMemory} from 'langchain/memory'
 import {markRaw} from 'vue'
 import {ConversationalRetrievalQAChain} from 'langchain/chains'
 import {getOpenAIChat} from '../lib/ai/config'
-import {useMultiFileStore} from './multiFileStore'
+import {useMultiFileStore, useMultiFileStoreBrowser} from './multiFileStore'
+import {v4} from 'uuid'
+import {fbHasUser} from '../lib/myfirebase'
+import {useMultiFileRemoteStore} from './multiFileRemoteStore'
+import {useQnaStoreRemote} from './qnaStoreRemote'
 
 const newBufferMemory = () => {
   return new BufferMemory({
@@ -14,15 +18,27 @@ const newBufferMemory = () => {
   })
 }
 
-export const useQnaStore = defineStore('qnaStore', {
+export const useQnaStore = () => {
+  // This is not a reactive decision so may lead to race conditions
+  if (fbHasUser()) {
+    return useQnaStoreRemote()
+  } else {
+    return useQnaStoreBrowser()
+  }
+}
+
+export const useQnaStoreBrowser = defineStore('qnaStore', {
   state: () => ({
-    memory: markRaw(newBufferMemory())
+    memory: markRaw(newBufferMemory()),
+    messages: []
   }),
   actions: {
+    async subscribe():Promise<void> {
+      // Nothing doing, messages is reactive
+    },
     async performVectorStoreQna (args: {question:string}) {
-      // FIXME: This won't work for remote
+      this.messages.push({id: v4(), message: args.question, role: 'User'})
       const retriever = useMultiFileStore().getRetriever()
-
       const model = getOpenAIChat()
       const memory = this.memory
       const chain = ConversationalRetrievalQAChain.fromLLM(model, retriever, {
@@ -33,6 +49,7 @@ export const useQnaStore = defineStore('qnaStore', {
         }
       })
       const res = await chain.call(args)
+      this.messages.push({id: v4(), message: res.text, role: 'Other'})
       return res
     },
     resetChat() {

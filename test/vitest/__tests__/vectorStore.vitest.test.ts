@@ -10,7 +10,7 @@ describe('vectorStore', () => {
   setActivePinia(createPinia())
 
   it('should ensure MemoryVectorStore cloneable', () => {
-    const store = useMultiFileStoreBrowser().vectorStore
+    const store = useMultiFileStoreBrowser().getVectorStore()
     store.addVectors([[0,1],[2,3]], [
       new Document({pageContent:'0,1'}),
       new Document({pageContent:'2,3'})

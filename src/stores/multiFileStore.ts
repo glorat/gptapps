@@ -41,7 +41,6 @@ export const useMultiFileStoreBrowser = defineStore('multiFile', {
   state: () => ({
     documentInfo: [] as DocumentInfo[] ,
     memoryVectors: [] as MemoryVector[],
-    vectorStore: markRaw(new MemoryVectorStore(new OpenAIEmbeddingsWithMemo(getLangchainConfig(), undefined, embedsCache)))
   }),
   getters: {
     processing: (state):boolean => state.documentInfo.some(file => includes([ 'processing', 'parsing'], file.fileStatus)),
@@ -54,7 +53,7 @@ export const useMultiFileStoreBrowser = defineStore('multiFile', {
       return ret
     },
     getRetriever() {
-      return this.vectorStore.asRetriever()
+      return this.getVectorStore().asRetriever()
     },
     async subscribe() {
       // Nothing. we are in memory

@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, reactive, ref} from 'vue';
+import {computed, onMounted, reactive, ref} from 'vue'
 import {useMultiFileStore} from 'stores/multiFileStore';
 import {v4} from 'uuid';
 import MultiFileManager from 'components/MultiFileManager.vue';
@@ -25,22 +25,22 @@ const progress = ref(0)
 const newMessage = ref('')
 
 
-const messages = reactive([] as any[])
+const messages = computed(() => useQnaStore().messages)
 
 const sendMessage = async () => {
   if (newMessage.value.trim() !== '') {
     const msg = newMessage.value.trim()
-
-    messages.push({id: v4(), message: msg, role: 'User'})
     const res = await useQnaStore().performVectorStoreQna({question:msg})
-    messages.push({id: v4(), message: res.text, role: 'Other'})
-
     newMessage.value = ''
   }
 }
 
-const onReset = () => {
+onMounted(() => {
+  useQnaStore().subscribe()
+})
 
+const onReset = () => {
+  useQnaStore().resetChat()
 }
 
 </script>

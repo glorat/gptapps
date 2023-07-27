@@ -68,8 +68,6 @@ export const useMultiFileRemoteStore = defineStore('multiFileRemote', {
           this.documentInfo = docs
         });
       }
-
-
     }
   },
 })

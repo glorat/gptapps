@@ -1,7 +1,7 @@
 import {OpenAIEmbeddings, OpenAIEmbeddingsParams} from 'langchain/embeddings/openai'
 import {AzureOpenAIInput} from 'langchain/dist/types/openai-types'
 import {ConfigurationParameters} from 'openai'
-import {MemoCache} from 'src/lib/ai/openaiWrapper'
+import {MemoCache} from './openaiWrapper'
 
 export class OpenAIEmbeddingsWithMemo extends OpenAIEmbeddings {
   cache:MemoCache<number[]>

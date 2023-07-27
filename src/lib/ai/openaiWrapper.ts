@@ -4,9 +4,9 @@
  * Function must be idempotent
  */
 import {CreateEmbeddingRequest} from 'openai'
-import {Config, getChatGPTClient, getOpenAIAPI} from 'src/lib/ai/config'
-import {logger} from 'src/lib/ai/logger'
-import {callWithRetry} from 'src/lib/ai/callWithRetry'
+import {Config, getChatGPTClient, getOpenAIAPI} from './config'
+import {logger} from './logger'
+import {callWithRetry} from './callWithRetry'
 import {LRUCache} from 'lru-cache'
 import SHA256 from 'crypto-js/sha256';
 

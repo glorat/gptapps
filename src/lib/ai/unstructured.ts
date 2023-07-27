@@ -27,6 +27,8 @@ export async function anyBufferToText(buffer: any, name:string) {
   const form = new FormData();
   form.append('files', buffer, name);
 
+  // logger.info(`anyBufferToText to ${getUnstructuredEndpoint()} for ${buffer.size} bytes of ${name}`)
+
   const response = await fetch(getUnstructuredEndpoint(),
     {method: 'POST', body: form})
 
@@ -36,7 +38,7 @@ export async function anyBufferToText(buffer: any, name:string) {
   // );
    if (response.ok) {
     const json = await response.json()
-
+    // logger.info(`${json.length} partitions of text returned`)
     return partitionsToText(json)
   } else {
     const text = await response.json()

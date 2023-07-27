@@ -22,8 +22,8 @@ class CustomFormData extends FormData {
 
 let aiUserSettings: Partial<AiUserSettings> = {
   server: 'openai',
-  openaiSettings: {apiKey: process.env.OPENAPI_KEY ?? process.env.OPENAI_API_KEY ?? ''},
-  unstructuredSettings: {endpoint: process.env.UNSTRUCTURED_URL ?? ''},
+  openaiSettings: {apiKey: process.env?.OPENAPI_KEY ?? process.env.OPENAI_API_KEY ?? ''},
+  unstructuredSettings: {endpoint: process.env?.UNSTRUCTURED_URL ?? ''},
 }
 
 export interface AiUserSettings {
@@ -39,7 +39,7 @@ export function applyAiUserSettings(settings: AiUserSettings) {
 
 function getOpenAIParams(settings = aiUserSettings) {
   const OpenAIParams: ConfigurationParameters = {
-    apiKey: process.env.OPENAPI_KEY ?? '',
+    apiKey: process.env?.OPENAPI_KEY ?? '',
     formDataCtor: CustomFormData
   }
   if (settings.server === 'openai') {
@@ -123,14 +123,15 @@ function getChatGPTClientOptions(clientOptions?: any) {
 
 export function getChatGPTClient(cache: any) {
   const clientOptions = getChatGPTClientOptions()
-  const client = new ChatGPTClient(getOpenAIParams().apiKey, clientOptions, cache)
+  const client = new ChatGPTClient(
+      getOpenAIParams().apiKey, clientOptions, cache)
   return client
 }
 
 export function getUnstructuredEndpoint() {
   let endpoint = aiUserSettings?.unstructuredSettings?.endpoint
   if (!endpoint) {
-    endpoint = process.env.UNSTRUCTURED_URL
+    endpoint = process.env?.UNSTRUCTURED_URL
   }
   if (!endpoint) {
     endpoint = defaultUnstructuredUrl
