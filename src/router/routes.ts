@@ -21,6 +21,11 @@ export const aiTools: (RouteRecordRaw & {description:string, name:string})[] = [
     meta: {title:'Retrieval QnA', icon:matSource},
     description: 'Chat with your document library',
   },
+  {
+    path: '/summary', name: 'summary', component: () => import('pages/SummaryPage.vue'),
+    meta: {title:'Document Summariser', icon:matSource},
+    description: 'Summarise large documents',
+  },
   { path: '/dalle', name: 'dalle', component: () => import('pages/DallePage.vue'), meta: {title:'Dall-E', icon:matImage},
     description: 'DALL-E AI image generation'
   },
