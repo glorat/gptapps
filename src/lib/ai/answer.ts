@@ -1,14 +1,70 @@
-import {getOpenAIAPI} from './config'
+import {getOpenAIAPI, getOpenAIChat} from './config'
 import {callWithRetry} from './callWithRetry'
 import {logger} from './logger'
 import {QnaStorage} from 'src/lib/ai/largeDocQna'
 import {answerMe, createEmbedding} from 'src/lib/ai/openaiFacade'
 import {VectorStore} from 'langchain/vectorstores';
-import {MemoryVectorStore} from "langchain/vectorstores/memory";
+import {MemoryVectorStore} from 'langchain/vectorstores/memory';
+import {LLMChain, loadSummarizationChain, MapReduceDocumentsChain} from 'langchain/chains';
+import {PromptTemplate} from 'langchain';
+import {RecursiveCharacterTextSplitter} from "langchain/text_splitter";
+import {DEFAULT_PROMPT} from "langchain/dist/chains/summarization/stuff_prompts";
+import {summarize} from "src/lib/ai/summary";
 
 
-export async function performQna2(question:string, db: VectorStore, filter:(d:any)=>boolean = ()=>true, prompt?: string): Promise<string|undefined> {
-  const similarities = await db.similaritySearch(question, 10, filter)
+const questionPrompt = PromptTemplate.fromTemplate(
+  `You are a SAMPLE TEXT generator, providing sample text that may appear in a document that is described in DOCUMENT SUMMARY. The SAMPLE TEXT contains the answer that would address a QUESTION being posed.
+
+DOCUMENT SUMMARY: {summary}
+
+QUESTION: {question}\.
+
+SAMPLE TEXT:`
+);
+
+
+export async function performSummarisation(text: string) {
+  return await summarize(text)
+  // const model = getOpenAIChat()
+  // const textSplitter = new RecursiveCharacterTextSplitter({ chunkSize: 2000,chunkOverlap:50 });
+  // const docs = await textSplitter.createDocuments([text]);
+  //
+  // // This convenience function creates a document chain prompted to summarize a set of documents.
+  // const chain  = loadSummarizationChain(model, { type: 'map_reduce' }) as MapReduceDocumentsChain; // also could be 'refine' for a slower way
+  // // Shorten summary to leave plenty of space for using summary in prompts
+  // chain.maxTokens = 1000
+  // chain.maxIterations = 20
+  // chain.verbose = true
+  //
+  // console.log(`Begin summarising ${text.length}`)
+  // const res = await chain.call({
+  //   input_documents: docs,
+  // });
+  // console.log('End summarising')
+  // return res.text as string
+}
+
+
+export async function performQna3(question:string, summary: string|undefined, db: VectorStore, filter:(d:any)=>boolean = ()=>true, prompt?: string) {
+  const model = getOpenAIChat()
+  const chainA = new LLMChain({ llm: model, prompt: questionPrompt });
+
+  let betterSearch:string|undefined = undefined
+  if (summary) {
+// The result is an object with a `text` property.
+    const resA = await chainA.call({ summary, question, verbose: true });
+    betterSearch = resA.text
+  }
+
+// debugger
+  return await performQna2(question, db, filter, betterSearch, prompt)
+
+}
+
+export async function performQna2(question:string, db: VectorStore, filter:(d:any)=>boolean = ()=>true, searchText?:string, prompt?: string): Promise<string|undefined> {
+  const simSearchText = searchText ?? question
+  console.log(`SEARCH: ${simSearchText}`)
+  const similarities = await db.similaritySearch(simSearchText, 10, filter)
 
   const contexts = []
   let contextLength = 0
