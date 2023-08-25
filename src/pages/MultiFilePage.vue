@@ -10,7 +10,7 @@
 import MultiFileManager from 'components/MultiFileManager.vue'
 import QuestionInputs from 'components/QuestionInputs.vue'
 import {computed, ref} from 'vue'
-import {performQna2} from 'src/lib/ai/answer'
+import {performQna2, performQna3, performSummarisation} from 'src/lib/ai/answer'
 import {exportFile, Notify} from 'quasar'
 import {useQuestionStore} from 'stores/questionStore'
 import {useMultiFileStore} from 'stores/multiFileStore'
@@ -34,7 +34,7 @@ async function doit() {
       for (const [fileIdx, file] of multiFileStore.documentInfo.entries()) {
         console.log(`QUESTION ${idx}: ${question}`)
         const vectorStore = useMultiFileStore().vectorStore
-        const response = await performQna2(question, vectorStore, d=>d.metadata['name'] === file.file.name)
+        const response = await performQna3(question, file.summary, vectorStore, d=>d.metadata['name'] === file.file.name)
         answers[idx][fileIdx] = response ?? 'cannot answer'
         console.log(`ANSWER ${idx}: ${response}`)
         console.log()

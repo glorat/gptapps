@@ -76,21 +76,26 @@ const completionConfig = {
 }
 
 export async function answerMeDirect(arg: {context: string, userPrompt: string, initPrompt?:string}): Promise<string> {
-  const defaultPrompt = "Answer the question as truthfully as possible using the provided text, and if the answer is not contained within the text below, say \"I don't know\"\n\n"
+  // const defaultPrompt = "Answer the question as truthfully as possible using the provided text, and if the answer is not contained within the text below, say \"I don't know\"\n\n"
+  const defaultPrompt = `Use the following pieces of context to answer the users question.
+If you don't know the answer, just say that you don't know, don't try to make up an answer.
+----------------
+`
   const initPrompt = arg.initPrompt ?? defaultPrompt
-  const {context, userPrompt} = arg
-  const prompt = initPrompt
-    + 'Context:\n' + context + '\n\n'
-    + 'Q: ' + userPrompt + '\nA: ';
 
-  logger.debug(prompt)
+  const {context, userPrompt} = arg
+  // const prompt = initPrompt
+  //   + 'Context:\n' + context + '\n\n'
+  //   + 'Q: ' + userPrompt + '\nA: ';
+  //
+  // logger.debug(prompt)
 
   const response = await callWithRetry(() => getOpenAIAPI(Config.chatModel).createChatCompletion({
     ...completionConfig,
     model: Config.chatModel,
     messages:[
-      {role: 'system', content: context},
-      {role: 'user', content: initPrompt},
+      {role: 'system', content: initPrompt + context},
+      // {role: 'user', content: context},
       {role: 'user', content: userPrompt}
     ],
     // user: TODO: for tracking purposes

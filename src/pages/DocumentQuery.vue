@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 import {ref, nextTick, onMounted, Ref, computed} from 'vue'
-import {performQna2} from 'src/lib/ai/answer'
+import {performQna2, performQna3, performSummarisation} from 'src/lib/ai/answer'
 import {createVectorStoreFromLargeContent} from 'src/lib/ai/largeDocQna'
 import {exportFile, Notify} from 'quasar'
 import {matCloudUpload} from '@quasar/extras/material-icons'
@@ -85,10 +85,13 @@ async function doit() {
 
     const vectorStore = await createVectorStoreFromLargeContent(text.value, (p)=>embedProgress.value=p)
 
+    const summary = await performSummarisation(text.value)
+    console.log(`SUMMARY ${summary}`)
+
     let idx = 0
     for (const question of questionStore.questions) {
       console.log(`QUESTION ${idx}: ${question}`)
-      const response = await performQna2(question, vectorStore)
+      const response = await performQna3(question, summary, vectorStore)
       answers.value[idx] = response ?? 'cannot answer'
       answerLoading.value[idx] = false
       console.log(`ANSWER ${idx}: ${response}`)

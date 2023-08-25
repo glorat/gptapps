@@ -7,13 +7,15 @@ import {getLangchainConfig} from 'src/lib/ai/config';
 import {embedsCache} from 'src/lib/ai/openaiWrapper';
 import {anyBufferToText, fileToText} from 'src/lib/ai/unstructured';
 import {RecursiveCharacterTextSplitter} from 'langchain/text_splitter';
+import {performSummarisation} from "src/lib/ai/answer";
 
 export interface DocumentInfo {
   name: string
   file?: File
   buffer?: Buffer
-  status: 'pending' | 'parsing' | 'processing' | 'ready' | 'error'
+  status: 'pending' | 'parsing' | 'processing' | 'ready' | 'error' | string
   progress?: number,
+  summary?: string
   // vectors?: MemoryVectorStore
 }
 
@@ -57,6 +59,12 @@ export const useMultiFileStore = defineStore('multiFile', {
           // const vectorStore = await createVectorStoreFromLargeContent(text, (p)=>{pendingDocument.progress=p})
           const vectorStore = this.vectorStore
           await vectorStore.addDocuments(docs) // TODO: deduplicate based on metadata?
+
+          // We also want a summary
+          // TODO: This could be in parallel of above?
+          pendingDocument.status = 'summarising'
+          const summary = await performSummarisation(text)
+          pendingDocument.summary = summary
 
           // Important to markRaw to avoid proxying the insides
           // pendingDocument.vectors = markRaw(vectorStore)
