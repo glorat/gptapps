@@ -35,9 +35,10 @@ import {Notify} from 'quasar'
 import {matCloudUpload} from '@quasar/extras/material-icons'
 import {fileToText} from 'src/lib/ai/unstructured'
 import {useQuestionStore} from 'stores/questionStore'
-import {loadSummarizationChain} from "langchain/chains";
-import {RecursiveCharacterTextSplitter} from "langchain/text_splitter";
-import {getOpenAIChat} from "../lib/ai/config";
+import {loadSummarizationChain} from 'langchain/chains';
+import {RecursiveCharacterTextSplitter} from 'langchain/text_splitter';
+import {getOpenAIChat} from '../lib/ai/config';
+import {performSummarisation} from "src/lib/ai/answer";
 
 const text = ref('')
 const questions = computed(() => questionStore.questions)
@@ -59,18 +60,7 @@ onMounted(() => {
 
 async function doit() {
   try {
-    loading.value = true
-    const model = getOpenAIChat()
-    const textSplitter = new RecursiveCharacterTextSplitter({ chunkSize: 2000,chunkOverlap:50 });
-    const docs = await textSplitter.createDocuments([text.value]);
-debugger
-    // This convenience function creates a document chain prompted to summarize a set of documents.
-    const chain = loadSummarizationChain(model, { type: 'map_reduce' });
-    // const chain = loadSummarizationChain(model, { type: 'refine' });
-    const res = await chain.call({
-      input_documents: docs,
-    });
-    answer.value = res.text
+    answer.value = await performSummarisation(text.value)
   } catch (e) {
     Notify.create({ message: e?.toString() ?? 'Unknown error' })
   } finally {

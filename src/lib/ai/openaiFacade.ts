@@ -40,6 +40,8 @@ export async function createTranscription(arg: {blob:Blob}) {
 }
 
 export async function createImage(arg: {request:CreateImageRequest}): Promise<ImagesResponse> {
+  // TODO: For azure need to pass a base path like
+  // https://{instance}.openai.azure.com/openai/images/generations:submit?api-version=2023-06-01-preview
   return await doGeneric(arg, 'createImage', async () => (await getOpenAIAPI().createImage(arg.request)).data)
 }
 
