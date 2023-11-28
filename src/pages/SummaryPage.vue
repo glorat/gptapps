@@ -35,10 +35,7 @@ import {Notify} from 'quasar'
 import {matCloudUpload} from '@quasar/extras/material-icons'
 import {fileToText} from 'src/lib/ai/unstructured'
 import {useQuestionStore} from 'stores/questionStore'
-import {loadSummarizationChain} from 'langchain/chains';
-import {RecursiveCharacterTextSplitter} from 'langchain/text_splitter';
-import {getOpenAIChat} from '../lib/ai/config';
-import {performSummarisation} from "src/lib/ai/answer";
+import {summarize} from '../lib/ai/summary'
 
 const text = ref('')
 const questions = computed(() => questionStore.questions)
@@ -60,7 +57,7 @@ onMounted(() => {
 
 async function doit() {
   try {
-    answer.value = await performSummarisation(text.value)
+    answer.value = await summarize(text.value)
   } catch (e) {
     Notify.create({ message: e?.toString() ?? 'Unknown error' })
   } finally {

@@ -1,5 +1,5 @@
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import {Document} from 'langchain/dist/document';
+import {Document} from 'langchain/document';
 
 const chunkSize = 1000
 const chunkOverlap = 200

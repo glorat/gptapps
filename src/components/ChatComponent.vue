@@ -1,9 +1,9 @@
 <template>
 
   <q-card v-for="message in messages" :key="message.id" class="message"
-          :class="{ 'sender': message.role === 'User', 'receiver': message.sender !== 'Me' }">
+          :class="{ 'sender': message.role.toLowerCase() === 'user', 'receiver': message.sender !== 'user' }">
     <div class="sender-avatar">
-      <q-avatar v-if="message.role=='User'" :color="getAvatarColor(message.role)" :icon="matPerson">
+      <q-avatar v-if="message.role.toLowerCase()=='user'" :color="getAvatarColor(message.role)" :icon="matPerson">
 
       </q-avatar>
       <q-avatar v-else>

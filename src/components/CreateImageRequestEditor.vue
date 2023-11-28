@@ -1,6 +1,7 @@
 <template>
   <div>
     <q-input label="Prompt" v-model="modelValue.prompt" />
+    <q-select label="Model" v-model="modelValue.model" :options="modelOptions" />
     <q-input label="Number of Images" type="number" v-model.number="modelValue.n" />
     <q-select label="Image Size" v-model="modelValue.size" :options="sizeOptions" />
     <q-select
@@ -13,8 +14,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, defineEmits, defineProps } from 'vue';
-import { CreateImageRequest } from 'openai';
+import {ref, watch, computed} from 'vue'
+import { OpenAI } from 'openai';
 
 const emit = defineEmits(['update:modelValue']);
 
@@ -24,16 +25,18 @@ const props = defineProps<{
 
 const defaultValues: CreateImageRequest = {
   prompt: '',
+  model: 'dall-e-3',
   n: 1,
-  size: '256x256',
+  size: '1024x1024',
   response_format: 'url',
   user: '',
 };
 
 const modelValue = ref<CreateImageRequest>(Object.assign({}, defaultValues, props.modelValue));
 
-const sizeOptions = ['256x256', '512x512', '1024x1024'] as const;
+const sizeOptions = computed(() => modelValue.value.model === 'dall-e-3' ? ['1024x1024' ,'1024x1792', '1792x1024'] : ['256x256', '512x512', '1024x1024']);
 const responseFormatOptions = ['url', 'b64_json'] as const;
+const modelOptions = ['dall-e-2', 'dall-e-3'] as const
 
 watch(
   modelValue,

@@ -1,10 +1,9 @@
-import { chunkDocument } from 'src/lib/ai/chunkDocument';
 import { LLMChain } from 'langchain/chains';
-import { getOpenAIChat } from 'src/lib/ai/config';
-import { PromptTemplate } from 'langchain';
+import { getOpenAIChat } from './config';
+import { PromptTemplate } from 'langchain/prompts';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { Document } from 'langchain/dist/document';
-import {round} from "lodash";
+import {round} from 'lodash';
 
 const MAX_TOKENS_SUMMARY = 1000;
 

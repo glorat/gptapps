@@ -10,7 +10,7 @@
 
     <div v-if="data.length">
       <div v-for="(item, idx) in data" :key="idx">
-        <q-img v-if="item.url" :src="item.url" :width="imgSize" :height="imgSize"></q-img>
+        <q-img v-if="item.url" :src="item.url" :width="imgSize" :height="imgSize" :alt="item.revised_prompt"></q-img>
       </div>
     </div>
   </q-page>
@@ -20,7 +20,7 @@
 import { getOpenAIAPI } from 'src/lib/ai/config';
 import CreateImageRequestEditor from 'components/CreateImageRequestEditor.vue';
 import { ref } from 'vue';
-import {createImage} from "src/lib/ai/openaiFacade";
+import {createImage} from 'src/lib/ai/openaiFacade';
 
 const request = ref({});
 const data = ref([]);

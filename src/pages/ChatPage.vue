@@ -13,7 +13,7 @@
 import {computed, reactive, ref} from 'vue'
 import ChatComponent from 'components/ChatComponent.vue'
 import {v4, v4 as uuidv4} from 'uuid'
-import {sendChatMessage} from 'src/lib/ai/openaiFacade'
+import {sendChatMessage} from '../lib/ai/openaiFacade'
 import ChatEntry from 'components/ChatEntry.vue';
 
 const cache = reactive({})

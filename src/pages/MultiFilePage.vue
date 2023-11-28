@@ -9,19 +9,25 @@
 <script lang="ts" setup>
 import MultiFileManager from 'components/MultiFileManager.vue'
 import QuestionInputs from 'components/QuestionInputs.vue'
-import {computed, ref} from 'vue'
-import {performQna2, performQna3, performSummarisation} from 'src/lib/ai/answer'
+import {computed, onMounted, ref} from 'vue'
 import {exportFile, Notify} from 'quasar'
-import {useQuestionStore} from 'stores/questionStore'
-import {useMultiFileStore} from 'stores/multiFileStore'
+import {useMultiFileStoreAsync} from '../stores/multiFileStore'
+import {performQna} from '../lib/ai/answer'
+import {useQuestionStore} from '../stores/questionStore'
 
-const busy = computed(() => loading.value || multiFileStore.processing)
+const multiFileStoreRef = ref(undefined)
+const busy = computed(() => loading.value || multiFileStoreRef.value?.processing)
 const loading = ref(false)
 const questionStore = useQuestionStore()
-const multiFileStore = useMultiFileStore()
+
 const progress = ref(0)
 
+onMounted(async() => {
+  multiFileStoreRef.value = await useMultiFileStoreAsync()
+})
+
 async function doit() {
+  const multiFileStore = await useMultiFileStoreAsync()
   try {
     loading.value = true
     const answers: string[][] = []
@@ -33,10 +39,10 @@ async function doit() {
       answers[idx] = Array(questionStore.questions.length).fill('')
       for (const [fileIdx, file] of multiFileStore.documentInfo.entries()) {
         console.log(`QUESTION ${idx}: ${question}`)
-        const vectorStore = useMultiFileStore().vectorStore
-        const response = await performQna3(question, file.summary, vectorStore, d=>d.metadata['name'] === file.file.name)
-        answers[idx][fileIdx] = response ?? 'cannot answer'
-        console.log(`ANSWER ${idx}: ${response}`)
+        const vectorStore = multiFileStore.getVectorStore()
+        const response = await performQna({strategy:'default', question, vectorStore, filter: d=>d.metadata['fileName'] === file.file.name})
+        answers[idx][fileIdx] = response.answer ?? 'cannot answer'
+        console.log(`ANSWER ${idx}: ${response.answer}`)
         console.log()
         count += 1
         progress.value = (count / total )
@@ -65,7 +71,8 @@ function escapeCSVValue(value: string): string {
   return escapedValue
 }
 
-function generateCSV(answers:string[][]) {
+async function generateCSV(answers:string[][]) {
+  const multiFileStore = await useMultiFileStoreAsync()
   const csvRows = [
     ['id', 'question', ...multiFileStore.documentInfo.map(x=>x.file.name)], // header row
   ]

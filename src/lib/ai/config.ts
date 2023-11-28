@@ -1,8 +1,6 @@
-import {Configuration, ConfigurationParameters, OpenAIApi} from 'openai'
-import {OpenAI, OpenAIChat} from 'langchain/llms/openai'
-import FormData from 'form-data'
-import ChatGPTClient from 'src/lib/ai/ChatGPTClient'
-import {defaultUnstructuredUrl} from '../myfirebase'
+import OpenAIAPI, {type ClientOptions} from 'openai'
+import {OpenAIChat} from 'langchain/llms/openai'
+// import FormData from 'form-data'
 
 type OpenAIEngine = 'text-ada-001' | 'text-davinci-003'
 
@@ -10,21 +8,30 @@ const engineId: OpenAIEngine = 'text-davinci-003'
 export const Config = {
   engineId,
   embedModel: 'text-embedding-ada-002',
-  chatModel: 'gpt-3.5-turbo'
+  chatModel: 'gpt-3.5-turbo' //
 }
 
-class CustomFormData extends FormData {
-  getHeaders(): Record<string, string> {
-    return {}
+//modelName: 'gpt-3.5-turbo-1106',
+
+//
+// class CustomFormData extends FormData {
+//   getHeaders(): Record<string, string> {
+//     return {}
+//   }
+// }
+
+/** As set by the browser user */
+let aiUserSettings: Partial<AiUserSettings>
+
+export function resetAiUserSettings() {
+  aiUserSettings = {
+    server: 'openai',
+    openaiSettings: {apiKey: process.env.OPENAI_API_KEY || process.env.OPENAPI_KEY || ''},
+    unstructuredSettings: {endpoint: process.env.UNSTRUCTURED_URL ?? ''},
   }
+  return aiUserSettings
 }
-
-
-let aiUserSettings: Partial<AiUserSettings> = {
-  server: 'openai',
-  openaiSettings: {apiKey: process.env.OPENAPI_KEY ?? ''},
-  unstructuredSettings: {endpoint: process.env.UNSTRUCTURED_URL ?? ''},
-}
+resetAiUserSettings()
 
 export interface AiUserSettings {
   server: 'openai' | 'azure' | 'hosted'
@@ -37,27 +44,43 @@ export function applyAiUserSettings(settings: AiUserSettings) {
   aiUserSettings = {...settings}
 }
 
-function getOpenAIParams(settings = aiUserSettings) {
-  const OpenAIParams: ConfigurationParameters = {
-    apiKey: process.env.OPENAPI_KEY ?? '',
-    formDataCtor: CustomFormData
+
+export function getOpenAIParams(settings = aiUserSettings) {
+  const OpenAIParams: ClientOptions = {
+    apiKey: process.env.OPENAPI_KEY ?? process.env.OPENAI_API_KEY ?? '',
+    dangerouslyAllowBrowser: true, // we have our mitigations
+    // formDataCtor: CustomFormData
   }
   if (settings.server === 'openai') {
     OpenAIParams.apiKey = settings.openaiSettings?.apiKey
-    OpenAIParams.basePath = undefined
+    OpenAIParams.baseURL = undefined
     return OpenAIParams
   } else if (settings.server === 'azure') {
     OpenAIParams.apiKey = settings.azureSettings?.apiKey
-    OpenAIParams.basePath = settings.azureSettings?.basePath
+    OpenAIParams.baseURL = settings.azureSettings?.basePath
     return OpenAIParams
   } else {
     throw 'not yet available feature'
   }
 }
 
+export function getLangchainEmbedConfig() {
+  if (aiUserSettings.server === 'openai') {
+    return {
+      openAIApiKey: aiUserSettings.openaiSettings?.apiKey,
+    }
+  } else {
+    return getLangchainConfig()
+  }
+}
+
 export function getLangchainConfig() {
   if (aiUserSettings.server === 'openai') {
-    return {openAIApiKey: aiUserSettings.openaiSettings?.apiKey}
+    return {
+      openAIApiKey: aiUserSettings.openaiSettings?.apiKey,
+      modelName: Config.chatModel,
+      temperature: 0
+    }
   } else if (aiUserSettings.server === 'azure') {
     return {
       azureOpenAIApiKey: aiUserSettings.azureSettings?.apiKey,
@@ -71,30 +94,26 @@ export function getLangchainConfig() {
   }
 }
 
-export function getOpenAIConfig(deployment?: string) {
-  if (!getOpenAIParams().apiKey) throw new Error('OPENAPI_KEY env not setup. Please check .env file or environment variables')
+export function getOpenAIConfig(deployment?: string): ClientOptions {
+  if (!getOpenAIParams().apiKey) throw new Error('OPENAI_API_KEY env not setup. Please check .env.dev file or environment variables')
   const params = {...getOpenAIParams()}
-  if (params.basePath) {
+  if (params.baseURL) {
     if (deployment) {
       const d2 = deployment.replaceAll(/\./g, '')
-      params.basePath = `${params.basePath}/openai/deployments/${d2}`
-      params.baseOptions = {
-        headers: {'api-key': params.apiKey},
-        params: {
-          // Custom endpoints need this api-version
-          'api-version': '2023-03-15-preview' // Need a better way to keep this up to date
-        }
-      }
-    } else {
-      throw new Error(`Custom endpoint ${params.basePath} needs a deployment name`)
+      params.baseURL = `${params.baseURL}/openai/deployments/${d2}`
+      params.defaultHeaders = {'api-key': params.apiKey}
+      params.defaultQuery = {'api-version': '2023-03-15-preview'}
+    }
+    else {
+      throw new Error(`Custom endpoint ${params.baseURL} needs a deployment name`)
     }
   }
-  return new Configuration(params)
+  return params
 }
 
 export const getOpenAIAPI = (deployment?: string) => {
   const config = getOpenAIConfig(deployment)
-  return new OpenAIApi(config)
+  return new OpenAIAPI.OpenAI(config)
 }
 
 export function getSettingsFromLocalStorage() {
@@ -108,12 +127,12 @@ export function getSettingsFromLocalStorage() {
 }
 
 
-function getChatGPTClientOptions(clientOptions?: any) {
+export function getChatGPTClientOptions(clientOptions?: any) {
   const cfg = getOpenAIConfig(Config.chatModel)
-  if (cfg.basePath) {
+  if (cfg.baseURL) {
     // Set up azure mode
     // https://kevin-test-openai-1.openai.azure.com//openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-03-15-preview
-    const opts = {azure: true, reverseProxyUrl: `${cfg.basePath}/chat/completions?api-version=2023-03-15-preview`}
+    const opts = {azure: true, reverseProxyUrl: `${cfg.baseURL}/chat/completions?api-version=2023-03-15-preview`}
     return {...(clientOptions ?? {}), ...opts}
   } else {
     return clientOptions ?? {}
@@ -121,21 +140,16 @@ function getChatGPTClientOptions(clientOptions?: any) {
 
 }
 
-export function getChatGPTClient(cache: any) {
-  const clientOptions = getChatGPTClientOptions()
-  const client = new ChatGPTClient(getOpenAIParams().apiKey, clientOptions, cache)
-  return client
-}
-
 export function getUnstructuredEndpoint() {
   let endpoint = aiUserSettings?.unstructuredSettings?.endpoint
   if (!endpoint) {
+    console.log(`getting endpoint from process.env.UNSTRUCTURED_URL`)
     endpoint = process.env.UNSTRUCTURED_URL
   }
-  if (!endpoint) {
-    endpoint = defaultUnstructuredUrl
-  }
-  return `${endpoint}/general/v0/general`
+  // if (!endpoint) {
+  //   endpoint = defaultUnstructuredUrl
+  // }
+  return `${endpoint ?? ''}/general/v0/general`
 }
 
 export function getOpenAIChat() {

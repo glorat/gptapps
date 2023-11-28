@@ -10,17 +10,17 @@
       </q-card-section>
       <q-card-section>
         <q-input
-          v-model="settings.azureSettings.apiKey"
-          label="Azure API Key"
-          filled
+            v-model="settings.azureSettings.apiKey"
+            label="Azure API Key"
+            filled
         ></q-input>
       </q-card-section>
 
       <q-card-section>
         <q-input
-          v-model="settings.azureSettings.basePath"
-          label="Azure Base Path"
-          filled
+            v-model="settings.azureSettings.basePath"
+            label="Azure Base Path"
+            filled
         ></q-input>
       </q-card-section>
     </q-card>
@@ -39,9 +39,9 @@
       </q-card-section>
       <q-card-section>
         <q-input
-          v-model="settings.openaiSettings.apiKey"
-          label="OpenAI API Key"
-          filled
+            v-model="settings.openaiSettings.apiKey"
+            label="OpenAI API Key"
+            filled
         ></q-input>
       </q-card-section>
     </q-card>
@@ -52,26 +52,26 @@
       </q-card-section>
       <q-card-section>
         <q-input
-          v-model="settings.unstructuredSettings.endpoint"
-          label="Endpoint"
-          filled
+            v-model="settings.unstructuredSettings.endpoint"
+            label="Endpoint"
+            filled
         ></q-input>
       </q-card-section>
     </q-card>
 
     <q-btn
-      label="Save Settings"
-      color="primary"
-      @click="saveSettings"
-      :disable="isSavingSettings"
-      :icon="matSave"
+        label="Save Settings"
+        color="primary"
+        @click="saveSettings"
+        :disable="isSavingSettings"
+        :icon="matSave"
     />
     <q-btn label="Reset" color="secondary" @click="resetSettings" :icon="matRefresh"/>
     <q-btn
-      label="Share Settings"
-      color="primary"
-      :icon="matShare"
-      @click="shareSettings"
+        label="Share Settings"
+        color="primary"
+        :icon="matShare"
+        @click="shareSettings"
     />
   </div>
 </template>
@@ -108,11 +108,12 @@ async function saveSettings() {
     isSavingSettings.value = true
     applyAiUserSettings(settings.value)
     // TODO: When hosted works, replace this with API call but without retries
-    const res = await getOpenAIAPI(Config.embedModel).createEmbedding({input: 'test', model: Config.embedModel})
+    const res = await getOpenAIAPI(Config.embedModel).embeddings.create({input: 'test', model: Config.embedModel})
 
     localStorage.setItem('aiUserSettings', JSON.stringify(settings.value))
     Notify.create({type: 'positive', message: 'Settings applied successfully'})
   } catch (e) {
+    console.error(e)
     Notify.create({type: 'negative', message: 'Invalid settings. Please fix or reset'})
   } finally {
     isSavingSettings.value = false
