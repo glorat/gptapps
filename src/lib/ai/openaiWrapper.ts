@@ -3,12 +3,13 @@
  * Function must take only a single argument
  * Function must be idempotent
  */
-import {CreateEmbeddingRequest} from 'openai'
-import {Config, getChatGPTClient, getOpenAIAPI, getOpenAIConfig} from 'src/lib/ai/config'
-import {logger} from 'src/lib/ai/logger'
-import {callWithRetry} from 'src/lib/ai/callWithRetry'
+import OpenAI from 'openai'
+import {Config, getChatGPTClientOptions, getLangchainConfig, getOpenAIAPI, getOpenAIParams} from './config'
+import {logger} from './logger'
+import {callWithRetry} from './callWithRetry'
 import {LRUCache} from 'lru-cache'
-import SHA256 from 'crypto-js/sha256';
+import SHA256 from 'crypto-js/sha256'
+import ChatGPTClient from './ChatGPTClient'
 
 export type MemoCache<T> = {
   get: (key:string)=>T|undefined,
@@ -51,16 +52,16 @@ async function createEmbeddingDirectNoMemo(args: {input:string}): Promise<number
     return cached
   }
 
-  const req: CreateEmbeddingRequest = {
+  const req: OpenAI.EmbeddingCreateParams = {
     input,
     model: Config.embedModel,
     // user: TODO
 
   }
   logger.debug(`createEmbedding for ${input.length} bytes`)
-  const res = await callWithRetry(() => getOpenAIAPI(Config.embedModel).createEmbedding(req))
+  const res = await callWithRetry(() => getOpenAIAPI(Config.embedModel).embeddings.create(req))
   logger.info(`createEmbedding return result for ${input.length}`)
-  const final = res.data.data[0].embedding
+  const final = res.data[0].embedding
   embedsCache.set(hash, final)
   return final
 }
@@ -76,26 +77,22 @@ const completionConfig = {
 }
 
 export async function answerMeDirect(arg: {context: string, userPrompt: string, initPrompt?:string}): Promise<string> {
-  // const defaultPrompt = "Answer the question as truthfully as possible using the provided text, and if the answer is not contained within the text below, say \"I don't know\"\n\n"
-  const defaultPrompt = `Use the following pieces of context to answer the users question.
-If you don't know the answer, just say that you don't know, don't try to make up an answer.
-----------------
-`
-  const initPrompt = arg.initPrompt ?? defaultPrompt
-
+  const defaultInitPrompt = "Answer the question as truthfully as possible using the provided text, and if the answer is not contained within the text, say \"I don't know\"\n\n"
+  const initPrompt = arg.initPrompt ?? defaultInitPrompt
   const {context, userPrompt} = arg
-  // const prompt = initPrompt
-  //   + 'Context:\n' + context + '\n\n'
-  //   + 'Q: ' + userPrompt + '\nA: ';
-  //
-  // logger.debug(prompt)
+  const prompt = initPrompt
+    + 'Context:\n' + context + '\n\n'
+    + 'Q: ' + userPrompt + '\nA: ';
 
-  const response = await callWithRetry(() => getOpenAIAPI(Config.chatModel).createChatCompletion({
+  logger.debug(prompt)
+
+  const response = await callWithRetry(() => getOpenAIAPI(Config.chatModel).chat.completions.create({
     ...completionConfig,
     model: Config.chatModel,
     messages:[
-      {role: 'system', content: initPrompt + context},
-      // {role: 'user', content: context},
+      // TODO: This can be optimised
+      {role: 'system', content: initPrompt},
+      {role: 'user', content: context},
       {role: 'user', content: userPrompt}
     ],
     // user: TODO: for tracking purposes
@@ -112,7 +109,7 @@ If you don't know the answer, just say that you don't know, don't try to make up
   //
   // });
 
-  let res: string = response.data!.choices![0].message!.content ?? '';
+  let res: string = response.choices![0].message!.content ?? '';
   res = ((/^\s*$/g).test(res) ? 'Failed' : res);
   // Could potentially also detect "I don't know" and return undefined in that case
   return res
@@ -121,12 +118,25 @@ If you don't know the answer, just say that you don't know, don't try to make up
 export async function createTranscriptionDirect(arg: {blob:Blob}) {
   const blob = arg.blob
   const file = new File([blob], 'recording.wav', { type: 'audio/wav' });
-  const res = await getOpenAIAPI().createTranscription(file, 'whisper-1');
-  return res.data?.text;
+  const res = await getOpenAIAPI().audio.transcriptions.create({ file, model: 'whisper-1' });
+  return res.text;
 }
+
+
+export function getChatGPTClient(cache: any) {
+  const clientOptions = getChatGPTClientOptions()
+  const client = new ChatGPTClient(
+    getLangchainConfig().openAIApiKey, clientOptions, cache)
+  return client
+}
+
 
 export async function sendChatMessageDirect(arg: {message:string, chatOptions?:any, cache: any, clientOptions?:any}) {
   const client = getChatGPTClient(arg.cache)
   const res = await client.sendMessage(arg.message, arg.chatOptions)
   return res
+}
+
+export async function createImageDirect (arg: {request:OpenAI.Images.ImageGenerateParams}){
+  return (await getOpenAIAPI().images.generate(arg.request))
 }

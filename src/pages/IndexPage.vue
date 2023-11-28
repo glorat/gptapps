@@ -21,10 +21,10 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref, Ref} from 'vue'
+import {onMounted} from 'vue'
 import {useRouter} from 'vue-router'
 import MarkdownRender from 'components/MarkdownRender.vue'
-import {aiTools} from 'src/router/routes'
+import {aiTools} from '../router/routes'
 
 const router = useRouter()
 

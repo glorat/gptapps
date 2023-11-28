@@ -1,15 +1,21 @@
 <template>
-  <q-toolbar class="bg-grey-3 text-black row">
-    <q-btn @click="onReset" flat class="q-ml-sm" icon="refresh" color="primary"/>
-    <q-input rounded outlined dense class="WAL__field q-mr-sm" bg-color="white"
+  <div style="background-color: lightgrey">
+    <q-input rounded outlined dense autogrow class="q-mr-sm" bg-color="white"
              :model-value="modelValue"
              @update:model-value="onModelValueUpdate"
              @keydown.enter="sendMessage"
-             placeholder="Type your message"/>
-    <audio-transcriber @message="onAudioMessage"></audio-transcriber>
-    <q-btn disable round flat :icon="isVolumeOn ? matVolumeUp : matVolumeOff"/>
-    <q-btn @click="sendMessage" flat class="q-ml-sm" icon="send" color="primary"/>
-  </q-toolbar>
+             placeholder="Type your message"
+    >
+      <template v-slot:before>
+        <q-btn @click="onReset" flat class="q-ml-sm" icon="refresh" color="primary"/>
+      </template>
+      <template v-slot:append>
+        <audio-transcriber @message="onAudioMessage"></audio-transcriber>
+        <q-btn disable round flat :icon="isVolumeOn ? matVolumeUp : matVolumeOff"/>
+        <q-btn @click="sendMessage" flat class="q-ml-sm" icon="send" color="primary"/>
+      </template>
+    </q-input>
+  </div>
 </template>
 
 <script setup lang="ts">

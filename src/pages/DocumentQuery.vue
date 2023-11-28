@@ -46,15 +46,15 @@
 </template>
 
 <script setup lang="ts">
-import {ref, nextTick, onMounted, Ref, computed} from 'vue'
-import {performQna2, performQna3, performSummarisation} from 'src/lib/ai/answer'
-import {createVectorStoreFromLargeContent} from 'src/lib/ai/largeDocQna'
+import {computed, onMounted, Ref, ref, watch} from 'vue'
+import {createVectorStoreFromLargeContent} from '../lib/ai/largeDocQna'
 import {exportFile, Notify} from 'quasar'
 import {matCloudUpload} from '@quasar/extras/material-icons'
-import axios from 'axios'
-import {fileToPartitions, fileToText} from 'src/lib/ai/unstructured'
-import {useQuestionStore} from 'stores/questionStore'
+import {fileToText} from '../lib/ai/unstructured'
+import {useQuestionStore} from '../stores/questionStore'
 import QuestionInputs from 'components/QuestionInputs.vue'
+import {useMultiFileLocalStore} from '../stores/multiFileLocalStore'
+import {performQna} from '../lib/ai/answer'
 
 const text = ref('')
 const questions = computed(() => questionStore.questions)
@@ -69,10 +69,19 @@ const questionStore = useQuestionStore()
 
 // Load questions from localStorage on component mount
 onMounted(() => {
+  text.value = useMultiFileLocalStore().allText
   // const savedQuestions = localStorage?.getItem('questions')
   // if (savedQuestions) {
   //   questionStore.questions = JSON.parse(savedQuestions)
   // }
+})
+
+const storeText = computed (() => {
+  return useMultiFileLocalStore().allText
+})
+
+watch(storeText, (txt) => {
+  text.value = txt
 })
 
 async function doit() {
@@ -85,16 +94,13 @@ async function doit() {
 
     const vectorStore = await createVectorStoreFromLargeContent(text.value, (p)=>embedProgress.value=p)
 
-    const summary = await performSummarisation(text.value)
-    console.log(`SUMMARY ${summary}`)
-
     let idx = 0
     for (const question of questionStore.questions) {
       console.log(`QUESTION ${idx}: ${question}`)
-      const response = await performQna3(question, summary, vectorStore)
-      answers.value[idx] = response ?? 'cannot answer'
+      const response = await performQna({question, vectorStore})
+      answers.value[idx] = response.answer ?? 'cannot answer'
       answerLoading.value[idx] = false
-      console.log(`ANSWER ${idx}: ${response}`)
+      console.log(`ANSWER ${idx}: ${response.answer}`)
       console.log()
       idx++
     }

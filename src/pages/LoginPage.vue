@@ -11,7 +11,7 @@
   </template>
   <template v-else>
     <p>
-      Lorum Ipsum Dolor
+      You are currently not logged in.
     </p>
   </template>
 
@@ -40,6 +40,7 @@ onMounted(async() => {
       loading.value = true
       const exist = await fbGetCurrentUser()
       // Object.assign?
+
       profile.nickname = exist.nickname
       displayName.value = exist.displayName
       loading.value = false

@@ -1,7 +1,7 @@
 import {OpenAIEmbeddings, OpenAIEmbeddingsParams} from 'langchain/embeddings/openai'
 import {AzureOpenAIInput} from 'langchain/dist/types/openai-types'
-import {ConfigurationParameters} from 'openai'
-import {MemoCache} from 'src/lib/ai/openaiWrapper'
+import OpenAI, {ClientOptions} from 'openai'
+import {MemoCache} from './openaiWrapper'
 
 export class OpenAIEmbeddingsWithMemo extends OpenAIEmbeddings {
   cache:MemoCache<number[]>
@@ -11,7 +11,7 @@ export class OpenAIEmbeddingsWithMemo extends OpenAIEmbeddings {
                 verbose?: boolean;
                 openAIApiKey?: string;
               },
-              configuration?: ConfigurationParameters,
+              configuration?: ClientOptions,
               cache?: MemoCache<number[]>) {
     super(fields, configuration)
     if (!cache) throw new Error('cache arg is required')

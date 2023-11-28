@@ -1,12 +1,12 @@
 import {chunkDocument} from './chunkDocument'
 import {range} from 'lodash'
 import {encode} from 'gpt-tokenizer'
-import {createEmbedding} from 'src/lib/ai/openaiFacade'
-import {getLangchainConfig} from 'src/lib/ai/config'
+import {createEmbedding} from './openaiFacade'
+import {getLangchainConfig, getLangchainEmbedConfig} from './config'
 import {OpenAIEmbeddings} from 'langchain/embeddings/openai';
 import {MemoryVectorStore} from 'langchain/vectorstores/memory';
-import {OpenAIEmbeddingsWithMemo} from 'src/lib/ai/EmbeddingsWithCache'
-import {embedsCache} from 'src/lib/ai/openaiWrapper'
+import {OpenAIEmbeddingsWithMemo} from './EmbeddingsWithCache'
+import {embedsCache} from './openaiWrapper'
 
 export interface EmbedsData { lengths: number[]; keys: string[]; tokens: number[]; embeds: number[][] }
 
@@ -21,7 +21,7 @@ export async function createVectorStoreFromLargeContent(content: string, progres
   const docChunks = await chunkDocument(content)
   OpenAIEmbeddings.length
 
-  const embeddings = new OpenAIEmbeddingsWithMemo(getLangchainConfig(), undefined, embedsCache)
+  const embeddings = new OpenAIEmbeddingsWithMemo(getLangchainEmbedConfig(), undefined, embedsCache)
 
   const vectorStore = new MemoryVectorStore(embeddings)
   const embeds = []
